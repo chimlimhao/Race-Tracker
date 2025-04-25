@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:race_tracker/ui/screens/home_screen.dart';
-import 'package:race_tracker/ui/screens/participant_screen.dart';
-import 'package:race_tracker/ui/screens/race_screen.dart';
-import 'package:race_tracker/ui/screens/result_screen.dart';
+import 'package:race_tracker/ui/screens/race-manager/home_screen.dart';
+import 'package:race_tracker/ui/screens/race-manager/participant_screen.dart';
+import 'package:race_tracker/ui/screens/race-manager/race_screen.dart';
+import 'package:race_tracker/ui/screens/race-manager/result_screen.dart';
 import 'package:race_tracker/ui/screens/widgets/navigations/bottom_navbar.dart';
 
 class NavContainer extends StatefulWidget {

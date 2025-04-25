@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:race_tracker/ui/screens/race_detail_screen.dart';
+import 'package:race_tracker/ui/screens/race-manager/race_detail_screen.dart';
 import 'package:race_tracker/ui/utils/segment_chip.dart';
 import 'package:race_tracker/ui/utils/status_chip.dart';
 

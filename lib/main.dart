@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:race_tracker/ui/screens/nav_container.dart';
+import 'package:race_tracker/ui/screens/widgets/nav_container.dart';
 
 void main() {
   runApp(const MyApp());
