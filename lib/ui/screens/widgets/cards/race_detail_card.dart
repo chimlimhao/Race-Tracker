@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:race_tracker/ui/screens/widgets/buttons/race_button.dart';
 
 class RaceDetailCard extends StatefulWidget {
   const RaceDetailCard({super.key});
@@ -12,99 +11,27 @@ class _RaceDetailCardState extends State<RaceDetailCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      padding: EdgeInsets.symmetric(vertical: 16),
+      margin: EdgeInsets.all(24),
+      padding: EdgeInsets.all(16),
+      width: double.infinity,
+      height: 125,
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey),
+        color: Color(0xFFD9D9D9),
+        border: Border.all(color: Colors.transparent),
         borderRadius: BorderRadius.circular(12),
       ),
-      width: double.infinity,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: 24),
-            padding: EdgeInsets.symmetric(vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Sensok Race',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                ),
-                RaceButton(type: ButtonType.start, onPressed: () {}),
-              ],
+      child: Center(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.access_time_outlined, size: 38),
+            SizedBox(width: 12),
+            Text(
+              '00:00:00',
+              style: TextStyle(fontSize: 38, fontWeight: FontWeight.w500),
             ),
-          ),
-          SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Expanded(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '00/00',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.center,
-                    ),
-                    Text(
-                      'Finished',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w300,
-                        color: Colors.grey,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-              Container(height: 40, width: 1, color: Colors.grey[300]),
-              Expanded(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '00/00',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.center,
-                    ),
-                    Text(
-                      'Finished',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w300,
-                        color: Colors.grey,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-              Container(height: 40, width: 1, color: Colors.grey[300]),
-              Expanded(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '00/00',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.center,
-                    ),
-                    Text(
-                      'Finished',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w300,
-                        color: Colors.grey,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

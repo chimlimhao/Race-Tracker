@@ -22,7 +22,7 @@ class _RaceSearchState extends State<RaceSearch> {
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.grey[300],
+          color: Colors.grey[100],
           borderRadius: BorderRadius.circular(12),
         ),
         child: TextField(
