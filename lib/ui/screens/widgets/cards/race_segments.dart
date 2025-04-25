@@ -15,7 +15,6 @@ class _RaceSegmentsState extends State<RaceSegments> {
     'assets/icons/cycling.png',
     'assets/icons/running.png',
   ];
-
   @override
   Widget build(BuildContext context) {
     return Container(
