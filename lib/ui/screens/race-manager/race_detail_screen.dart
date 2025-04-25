@@ -28,12 +28,7 @@ class RaceDetailScreen extends StatelessWidget {
               children: [
                 RaceButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => RaceTrackingScreen(),
-                      ),
-                    );
+                    // TODO: Implement start race
                   },
                   type: ButtonType.start,
                   bgcolor: Colors.black,
