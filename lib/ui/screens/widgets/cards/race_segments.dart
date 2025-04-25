@@ -9,6 +9,12 @@ class RaceSegments extends StatefulWidget {
 }
 
 class _RaceSegmentsState extends State<RaceSegments> {
+  final List<String> segments = ['Swimming', 'Cycling', 'Running'];
+  final List<String> icons = [
+    'assets/icons/swimming.png',
+    'assets/icons/cycling.png',
+    'assets/icons/running.png',
+  ];
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -38,13 +44,9 @@ class _RaceSegmentsState extends State<RaceSegments> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Image.asset(
-                        'assets/icons/swimming.png',
-                        height: 25,
-                        width: 25,
-                      ),
+                      Image.asset(icons[0], height: 25, width: 25),
                       SizedBox(width: 5),
-                      Text('Swimming'),
+                      Text(segments[0]),
                     ],
                   ),
                 ),
@@ -61,13 +63,9 @@ class _RaceSegmentsState extends State<RaceSegments> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Image.asset(
-                        'assets/icons/cycling.png',
-                        height: 25,
-                        width: 25,
-                      ),
+                      Image.asset(icons[1], height: 25, width: 25),
                       SizedBox(width: 5),
-                      Text('Cycling'),
+                      Text(segments[1]),
                     ],
                   ),
                 ),
@@ -84,13 +82,9 @@ class _RaceSegmentsState extends State<RaceSegments> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Image.asset(
-                        'assets/icons/running.png',
-                        height: 25,
-                        width: 25,
-                      ),
+                      Image.asset(icons[2], height: 25, width: 25),
                       SizedBox(width: 5),
-                      Text('Running'),
+                      Text(segments[2]),
                     ],
                   ),
                 ),
