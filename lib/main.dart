@@ -14,9 +14,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        scaffoldBackgroundColor: Colors.white,
+        scaffoldBackgroundColor: Colors.grey[100],
         appBarTheme: AppBarTheme(
-          backgroundColor: Colors.white,
+          backgroundColor: Colors.grey[100],
           elevation: 0,
           iconTheme: IconThemeData(color: Colors.black),
           titleTextStyle: TextStyle(
@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
         colorScheme: ColorScheme.light(
-          surface: Colors.white,
+          surface: Colors.grey[100]!,
           primary: Colors.black,
         ),
       ),
