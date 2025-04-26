@@ -2,16 +2,11 @@ import 'package:flutter/material.dart';
 
 enum Status { pending, active, completed }
 
-class StatusChip extends StatefulWidget {
+class StatusChip extends StatelessWidget {
   final Status status;
 
   const StatusChip({super.key, this.status = Status.pending});
 
-  @override
-  State<StatusChip> createState() => _StatusChipState();
-}
-
-class _StatusChipState extends State<StatusChip> {
   String getStatusText(Status status) {
     switch (status) {
       case Status.pending:
@@ -26,27 +21,31 @@ class _StatusChipState extends State<StatusChip> {
   Color getStatusColor(Status status) {
     switch (status) {
       case Status.pending:
-        return Colors.orange;
+        return const Color(0xFFFF9800); // Orange
       case Status.active:
-        return Colors.green;
+        return const Color(0xFF2196F3); // Blue
       case Status.completed:
-        return Colors.blue;
+        return const Color(0xFF4CAF50); // Green
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final color = getStatusColor(status);
+
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: getStatusColor(widget.status)),
-        borderRadius: BorderRadius.circular(8),
+        color: color.withOpacity(0.1),
+        border: Border.all(color: color, width: 1),
+        borderRadius: BorderRadius.circular(20),
       ),
-      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       child: Text(
-        getStatusText(widget.status),
+        getStatusText(status),
         style: TextStyle(
-          fontWeight: FontWeight.bold,
-          color: getStatusColor(widget.status),
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+          color: color,
         ),
       ),
     );
