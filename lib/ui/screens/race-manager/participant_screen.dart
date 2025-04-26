@@ -48,6 +48,7 @@ class ParticipantScreen extends StatelessWidget {
             ],
           ),
         ),
+        SizedBox(height: 16),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 24),
           child: Row(
@@ -104,14 +105,20 @@ class ParticipantScreen extends StatelessWidget {
                           SizedBox(width: 8),
                           Container(
                             padding: EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 4,
+                              horizontal: 7,
+                              vertical: 5,
                             ),
                             decoration: BoxDecoration(
                               border: Border.all(color: Colors.black),
                               borderRadius: BorderRadius.circular(16),
                             ),
-                            child: Text('1001'),
+                            child: Text(
+                              '1001',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
                         ],
                       ),
@@ -121,7 +128,7 @@ class ParticipantScreen extends StatelessWidget {
                       child: Text('Male', style: TextStyle(fontSize: 16)),
                     ),
                     Expanded(
-                      flex: 1,
+                      flex: 0,
                       child: Align(
                         alignment: Alignment.centerRight,
                         child: IconButton(

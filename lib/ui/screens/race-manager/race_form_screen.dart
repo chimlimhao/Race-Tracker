@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:race_tracker/ui/screens/widgets/cards/race_form.dart';
+import 'package:race_tracker/ui/screens/widgets/forms/race_form.dart';
 
 class RaceFormScreen extends StatelessWidget {
   const RaceFormScreen({super.key});
