@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:race_tracker/ui/screens/race-manager/participant_form_screen.dart';
-import 'package:race_tracker/ui/screens/widgets/buttons/race_button.dart';
-import 'package:race_tracker/ui/screens/widgets/dialogs/search_input.dart';
+import 'package:race_tracker/ui/screens/widgets/inputs/search_input.dart';
+import 'package:race_tracker/ui/screens/widgets/modals/participant_bottom_sheet.dart';
 
 class ParticipantScreen extends StatelessWidget {
   const ParticipantScreen({super.key});
@@ -9,7 +8,17 @@ class ParticipantScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Participant')),
+      appBar: AppBar(
+        title: Text('Participant'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.add),
+            onPressed: () {
+              ParticipantBottomSheet.show(context);
+            },
+          ),
+        ],
+      ),
       body: Column(
         children: [
           Padding(
@@ -32,18 +41,6 @@ class ParticipantScreen extends StatelessWidget {
               Text(
                 'Participants (x):',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-              ),
-              Spacer(),
-              RaceButton(
-                type: ButtonType.add,
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ParticipantFormScreen(),
-                    ),
-                  );
-                },
               ),
             ],
           ),

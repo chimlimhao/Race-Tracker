@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:race_tracker/ui/screens/race-manager/race_form_screen.dart';
 import 'package:race_tracker/ui/screens/widgets/inputs/search_input.dart';
 import 'package:race_tracker/ui/screens/widgets/cards/race_card.dart';
+import 'package:race_tracker/ui/screens/widgets/modals/race_bottom_sheet.dart';
 
 class RaceScreen extends StatelessWidget {
   const RaceScreen({super.key});
@@ -15,9 +15,7 @@ class RaceScreen extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.add),
             onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => const RaceFormScreen()),
-              );
+              RaceBottomSheet.show(context);
             },
           ),
         ],
