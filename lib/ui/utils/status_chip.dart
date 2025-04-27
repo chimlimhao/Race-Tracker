@@ -6,6 +6,7 @@ class StatusChip extends StatelessWidget {
   final Status status;
 
   const StatusChip({super.key, this.status = Status.pending});
+
   String getStatusText(Status status) {
     switch (status) {
       case Status.pending:
