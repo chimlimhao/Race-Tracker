@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:race_tracker/ui/screens/widgets/dialogs/search_input.dart';
+import 'package:race_tracker/ui/screens/widgets/inputs/search_input.dart';
 
 class ResultScreen extends StatelessWidget {
   const ResultScreen({super.key});
@@ -35,6 +35,7 @@ class ResultScreen extends StatelessWidget {
             ],
           ),
         ),
+        SizedBox(height: 16),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 24),
           child: Row(
@@ -133,19 +134,19 @@ class ResultScreen extends StatelessWidget {
                     ),
                     Expanded(
                       flex: 2,
-                      child: Text(
-                        'Male',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      child: Text('Male', style: TextStyle(fontSize: 16)),
                     ),
                     Expanded(
                       flex: 2,
                       child: Align(
                         alignment: Alignment.centerRight,
-                        child: Text('00:00:00', style: TextStyle(fontSize: 16)),
+                        child: Text(
+                          '00:00:00',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
                       ),
                     ),
                   ],

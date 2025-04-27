@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:race_tracker/models/participant.dart';
 import 'package:race_tracker/ui/screens/widgets/buttons/track_button.dart';
-import 'package:race_tracker/ui/screens/widgets/dialogs/search_popup.dart';
+import 'package:race_tracker/ui/screens/widgets/modals/search_bottom_sheet.dart';
 
 class RaceTrackingScreen extends StatefulWidget {
   const RaceTrackingScreen({super.key});
@@ -90,12 +90,7 @@ class _RaceTrackingScreenState extends State<RaceTrackingScreen>
               ),
               Spacer(),
               IconButton(
-                onPressed:
-                    () => showDialog(
-                      context: context,
-                      builder: (context) => SearchPopup(),
-                      barrierDismissible: true,
-                    ),
+                onPressed: () => SearchBottomSheet.show(context),
                 icon: Icon(Icons.search, size: 32),
               ),
             ],
