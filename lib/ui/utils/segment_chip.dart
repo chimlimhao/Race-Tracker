@@ -1,34 +1,27 @@
 import 'package:flutter/material.dart';
 
-class SegmentChip extends StatefulWidget {
-  const SegmentChip({super.key});
+class SegmentChip extends StatelessWidget {
+  final String label;
 
-  @override
-  State<SegmentChip> createState() => _SegmentChipState();
-}
+  const SegmentChip({super.key, required this.label});
 
-class _SegmentChipState extends State<SegmentChip> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      margin: const EdgeInsets.only(right: 8),
       decoration: BoxDecoration(
-        border: Border.all(),
-        borderRadius: BorderRadius.circular(8),
+        color: Colors.black,
+        border: Border.all(color: Colors.white.withOpacity(0.5), width: 0.8),
+        borderRadius: BorderRadius.circular(10),
       ),
-      padding: EdgeInsets.all(4),
-      child: Row(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(),
-              borderRadius: BorderRadius.circular(50),
-            ),
-            width: 10,
-            height: 10,
-          ),
-          SizedBox(width: 4),
-          Text('Swimming', style: TextStyle(fontWeight: FontWeight.bold)),
-        ],
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      child: Text(
+        label,
+        style: const TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+          color: Colors.white,
+        ),
       ),
     );
   }

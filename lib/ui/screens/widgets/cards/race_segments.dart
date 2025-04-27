@@ -38,6 +38,7 @@ class _RaceSegmentsState extends State<RaceSegments> {
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 7.5),
                   decoration: BoxDecoration(
+                    color: Colors.black,
                     border: Border.all(color: Colors.grey),
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -45,9 +46,14 @@ class _RaceSegmentsState extends State<RaceSegments> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Image.asset(icons[0], height: 25, width: 25),
+                      Image.asset(
+                        icons[0],
+                        height: 25,
+                        width: 25,
+                        color: Colors.white,
+                      ),
                       SizedBox(width: 5),
-                      Text(segments[0]),
+                      Text(segments[0], style: TextStyle(color: Colors.white)),
                     ],
                   ),
                 ),
@@ -57,6 +63,7 @@ class _RaceSegmentsState extends State<RaceSegments> {
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 7.5),
                   decoration: BoxDecoration(
+                    color: Colors.black,
                     border: Border.all(color: Colors.grey),
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -64,9 +71,14 @@ class _RaceSegmentsState extends State<RaceSegments> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Image.asset(icons[1], height: 25, width: 25),
+                      Image.asset(
+                        icons[1],
+                        height: 25,
+                        width: 25,
+                        color: Colors.white,
+                      ),
                       SizedBox(width: 5),
-                      Text(segments[1]),
+                      Text(segments[1], style: TextStyle(color: Colors.white)),
                     ],
                   ),
                 ),
@@ -76,6 +88,7 @@ class _RaceSegmentsState extends State<RaceSegments> {
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 7.5),
                   decoration: BoxDecoration(
+                    color: Colors.black,
                     border: Border.all(color: Colors.grey),
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -83,9 +96,14 @@ class _RaceSegmentsState extends State<RaceSegments> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Image.asset(icons[2], height: 25, width: 25),
+                      Image.asset(
+                        icons[2],
+                        height: 25,
+                        width: 25,
+                        color: Colors.white,
+                      ),
                       SizedBox(width: 5),
-                      Text(segments[2]),
+                      Text(segments[2], style: TextStyle(color: Colors.white)),
                     ],
                   ),
                 ),
