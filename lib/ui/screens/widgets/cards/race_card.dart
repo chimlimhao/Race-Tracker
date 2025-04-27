@@ -89,6 +89,7 @@ class RaceCard extends StatelessWidget {
         const SegmentChip(label: 'Cycling'),
         const SegmentChip(label: 'Running'),
       ],
+
     );
   }
 }
