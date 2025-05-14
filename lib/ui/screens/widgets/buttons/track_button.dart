@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class TrackButton extends StatefulWidget {
-  final Function() onTap;
+  final VoidCallback? onTap;
+
   final bool isTracked;
   final String status;
   final String bib;

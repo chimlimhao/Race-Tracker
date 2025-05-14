@@ -30,6 +30,7 @@ class MyApp extends StatelessWidget {
           primary: Colors.black,
         ),
       ),
+      // home: NavContainer(),
       home: NavContainer(),
     );
   }

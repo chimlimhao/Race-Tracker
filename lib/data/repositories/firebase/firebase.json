@@ -1,0 +1,22 @@
+{
+    "races": {
+      "race1": {
+        "raceStatus": "notStarted",
+        "startTime": 1628888400000,
+        "endTime": 1628895600000
+      }
+    },
+    "participants": {
+      "p1": { "name": "Alice Smith", "bibNumber": 42 }
+    },
+    "segmentTimes": {
+      "race1": {
+        "p1": {
+          "swimming":   { "elapsedTimeInSeconds": 753 },
+          "cycling":    { "elapsedTimeInSeconds": 3600 },
+          "running":    { "elapsedTimeInSeconds": 1800 }
+        }
+      }
+    }
+  }
+  
