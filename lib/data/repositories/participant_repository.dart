@@ -1,5 +1,5 @@
 import '../models/participant.dart';
-import '../services/firebase_service.dart';
+import 'services/firebase_service.dart';
 
 class ParticipantRepository {
   final FirebaseService _firebaseService = FirebaseService();

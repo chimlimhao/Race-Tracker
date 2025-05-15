@@ -1,5 +1,5 @@
 import '../models/race.dart';
-import '../services/firebase_service.dart';
+import 'services/firebase_service.dart';
 
 class RaceRepository {
   final FirebaseService _firebaseService = FirebaseService();

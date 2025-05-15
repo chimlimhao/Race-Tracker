@@ -1,5 +1,5 @@
 import '../models/results.dart';
-import '../services/firebase_service.dart';
+import 'services/firebase_service.dart';
 
 class ResultRepository {
   final FirebaseService _firebaseService = FirebaseService();
@@ -13,5 +13,5 @@ class ResultRepository {
   }
 
   Future<void> createResult(Result result) async {
-      await _firebaseService.addDocument('results', result);
+      await _firebaseService.addDocument('results', result as Map<String, dynamic>);
     }
