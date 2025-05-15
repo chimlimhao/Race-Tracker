@@ -19,7 +19,17 @@ class ParticipantProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Checks if a BIB number is already in use
+  bool isBibNumberTaken(String bib) {
+    return _participants.any((p) => p.bib == bib);
+  }
+
   Future<void> addParticipant(ParticipantItem p) async {
+    // Check for uniqueness first
+    if (isBibNumberTaken(p.bib)) {
+      throw Exception('BIB number ${p.bib} is already in use');
+    }
+
     _loading = true;
     notifyListeners();
     final id = await _service.createParticipantItem(p);

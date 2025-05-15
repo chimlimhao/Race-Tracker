@@ -79,9 +79,9 @@ class SearchBottomSheet extends StatefulWidget {
   @override
   State<SearchBottomSheet> createState() => _SearchBottomSheetState();
 
-  // Instead of showing a modal, show a persistent search bar on the main screen
-  static void show(BuildContext context) {
-    showModalBottomSheet(
+  // Return the search result to caller
+  static Future<String?> show(BuildContext context) {
+    return showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
@@ -102,7 +102,7 @@ class _SearchBottomSheetState extends State<SearchBottomSheet> {
   }
 
   void _handleSearch(String bibNumber) {
-    // Search functionality
+    // Return the search value to the caller
     Navigator.pop(context, bibNumber);
   }
 
