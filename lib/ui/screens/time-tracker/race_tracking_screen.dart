@@ -114,7 +114,61 @@ class _RaceTrackingScreenState extends State<RaceTrackingScreen>
   Future<void> _onParticipantTap(ParticipantItem p) async {
     try {
       final now = DateTime.now().millisecondsSinceEpoch;
-      final elapsedSec = ((now - _raceStartMillis) / 1000).round();
+
+      // Get previous segment times for this participant
+      final previousTimes = await _raceRepository.getSegmentTimes(
+        raceId: widget.raceId,
+        participantId: p.id,
+      );
+
+      // Get the correct elapsed time based on segment type
+      int elapsedSec;
+
+      // Get the segment index for the current segment
+      final segmentIndex = Segment.values.indexOf(widget.segment);
+
+      // For the first segment, calculate time from race start
+      if (segmentIndex == 0) {
+        elapsedSec = ((now - _raceStartMillis) / 1000).round();
+      } else {
+        // For subsequent segments, calculate split time from previous segments
+        // First, check if all previous segments have been tracked
+        bool allPreviousSegmentsTracked = true;
+        int lastSegmentTime = 0;
+
+        for (int i = 0; i < segmentIndex; i++) {
+          final prevSegment = Segment.values[i];
+          final prevTime = previousTimes.where((t) => t.segment == prevSegment);
+
+          if (prevTime.isEmpty) {
+            allPreviousSegmentsTracked = false;
+            break;
+          } else {
+            // Keep track of the time of the last tracked segment
+            lastSegmentTime = prevTime.first.elapsedTimeInSeconds;
+          }
+        }
+
+        if (allPreviousSegmentsTracked) {
+          // Calculate relative to race start time, but will be stored as a net time
+          // in the results view
+          elapsedSec = ((now - _raceStartMillis) / 1000).round();
+        } else {
+          // If previous segments aren't fully tracked, fall back to absolute time
+          // from race start, but show a warning
+          elapsedSec = ((now - _raceStartMillis) / 1000).round();
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Warning: Previous segments not fully tracked. Time might be inaccurate.',
+              ),
+              backgroundColor: Colors.orange,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+      }
 
       await _raceRepository.setSegmentTime(
         raceId: widget.raceId,

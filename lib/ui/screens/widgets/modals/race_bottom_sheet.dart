@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:race_tracker/data/repositories/race_repository.dart';
+import 'package:race_tracker/data/repositories/firebase/race_repo_imp.dart';
 import 'package:race_tracker/models/race.dart';
 import 'package:race_tracker/models/segment.dart';
 // import 'package:race_tracker/data/repositories/firebase/firebase_service.dart';
@@ -25,6 +27,8 @@ class RaceBottomSheet extends StatefulWidget {
 }
 
 class _RaceBottomSheetState extends State<RaceBottomSheet> {
+  // MARK: - Properties
+
   final _nameController = TextEditingController();
   final _dateController = TextEditingController();
   final _locationController = TextEditingController();
@@ -47,7 +51,10 @@ class _RaceBottomSheetState extends State<RaceBottomSheet> {
     ],
   ];
 
-  // final FirebaseService _service = FirebaseService();
+  // Use the race repository
+  final RaceRepository _raceRepository = FirebaseRaceRepository();
+
+  // MARK: - Lifecycle Methods
 
   @override
   void dispose() {
@@ -61,13 +68,15 @@ class _RaceBottomSheetState extends State<RaceBottomSheet> {
     super.dispose();
   }
 
+  // MARK: - Actions
+
   void _pickDate() async {
     final now = DateTime.now();
     final picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate ?? now,
-      firstDate: now.subtract(Duration(days: 365)),
-      lastDate: now.add(Duration(days: 365)),
+      firstDate: now.subtract(const Duration(days: 365)),
+      lastDate: now.add(const Duration(days: 365)),
     );
     if (picked != null) {
       setState(() {
@@ -111,7 +120,10 @@ class _RaceBottomSheetState extends State<RaceBottomSheet> {
         segments.isEmpty ||
         segments.any((s) => !s.isValid)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please complete all fields & segments')),
+        const SnackBar(
+          content: Text('Please complete all fields & segments'),
+          behavior: SnackBarBehavior.floating,
+        ),
       );
       return;
     }
@@ -125,25 +137,26 @@ class _RaceBottomSheetState extends State<RaceBottomSheet> {
 
     setState(() => _isLoading = true);
     try {
-      // final id = await _service.createRace(race);
+      // Create the race using the repository
+      await _raceRepository.createRace(race);
 
-      // Show a user-friendly success message instead of the Firebase ID
+      // Show a user-friendly success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Row(
             children: [
-              Icon(Icons.check_circle, color: Colors.white),
-              SizedBox(width: 12),
+              const Icon(Icons.check_circle, color: Colors.white),
+              const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   'Race "${race.title}" created successfully!',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
             ],
           ),
           backgroundColor: Colors.green.shade700,
-          duration: Duration(seconds: 3),
+          duration: const Duration(seconds: 3),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -151,12 +164,18 @@ class _RaceBottomSheetState extends State<RaceBottomSheet> {
       Navigator.of(context).pop(); // close bottom sheet
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text('Error: $e'),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+        ),
       );
     } finally {
       setState(() => _isLoading = false);
     }
   }
+
+  // MARK: - UI Building
 
   @override
   Widget build(BuildContext context) {
@@ -173,134 +192,147 @@ class _RaceBottomSheetState extends State<RaceBottomSheet> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Header
+          _buildHeader(),
+          const SizedBox(height: 16),
+          _buildFormFields(),
+          _buildSegmentsSection(),
+          const SizedBox(height: 16),
+          _buildSubmitButton(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        const Text(
+          'Race Detail',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        IconButton(
+          icon: const Icon(Icons.close),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFormFields() {
+    return Column(
+      children: [
+        _buildField('Race Name', _nameController, hint: 'Enter a race name'),
+        _buildField(
+          'Date',
+          _dateController,
+          hint: 'Tap to pick date',
+          readOnly: true,
+          onTap: _pickDate,
+          suffix: const Icon(Icons.calendar_today),
+        ),
+        _buildField('Location', _locationController, hint: 'Enter a location'),
+      ],
+    );
+  }
+
+  Widget _buildSegmentsSection() {
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Race Detail',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              IconButton(
-                icon: Icon(Icons.close),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ],
-          ),
-          SizedBox(height: 16),
-
-          // Name
-          _buildField('Race Name', _nameController, hint: 'Enter a race name'),
-
-          // Date
-          _buildField(
-            'Date',
-            _dateController,
-            hint: 'Tap to pick date',
-            readOnly: true,
-            onTap: _pickDate,
-            suffix: Icon(Icons.calendar_today),
-          ),
-
-          // Location
-          _buildField(
-            'Location',
-            _locationController,
-            hint: 'Enter a location',
-          ),
-
-          // Segments list
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
+              const Text(
                 'Race Segments',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               IconButton(
-                icon: Icon(Icons.add, color: Colors.black),
+                icon: const Icon(Icons.add, color: Colors.black),
                 onPressed: _addSegment,
               ),
             ],
           ),
-          SizedBox(height: 8),
-          // dynamic segment inputs
+          const SizedBox(height: 8),
           Expanded(
             child: ListView.builder(
               itemCount: _segmentControllers.length,
-              itemBuilder: (_, i) {
-                final nameCtrl = _segmentControllers[i][0];
-                final distCtrl = _segmentControllers[i][1];
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        flex: 4,
-                        child: TextField(
-                          controller: nameCtrl,
-                          decoration: InputDecoration(
-                            hintText: 'Segment name',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 14,
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 8),
-                      Expanded(
-                        flex: 2,
-                        child: TextField(
-                          controller: distCtrl,
-                          decoration: InputDecoration(
-                            hintText: 'Distance',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 14,
-                            ),
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.delete_outline, color: Colors.red),
-                        onPressed: () => _removeSegment(i),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
-
-          // Submit
-          SizedBox(
-            width: double.infinity,
-            height: 50,
-            child: ElevatedButton(
-              onPressed: _isLoading ? null : _validateAndSubmitForm,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child:
-                  _isLoading
-                      ? CircularProgressIndicator(color: Colors.white)
-                      : Text(
-                        'Add Race',
-                        style: TextStyle(fontSize: 16, color: Colors.white),
-                      ),
+              itemBuilder: (_, i) => _buildSegmentRow(i),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSegmentRow(int index) {
+    final nameCtrl = _segmentControllers[index][0];
+    final distCtrl = _segmentControllers[index][1];
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 4,
+            child: TextField(
+              controller: nameCtrl,
+              decoration: InputDecoration(
+                hintText: 'Segment name',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 14,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            flex: 2,
+            child: TextField(
+              controller: distCtrl,
+              decoration: InputDecoration(
+                hintText: 'Distance',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 14,
+                ),
+              ),
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete_outline, color: Colors.red),
+            onPressed: () => _removeSegment(index),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSubmitButton() {
+    return SizedBox(
+      width: double.infinity,
+      height: 50,
+      child: ElevatedButton(
+        onPressed: _isLoading ? null : _validateAndSubmitForm,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.black,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+        child:
+            _isLoading
+                ? const CircularProgressIndicator(color: Colors.white)
+                : const Text(
+                  'Add Race',
+                  style: TextStyle(fontSize: 16, color: Colors.white),
+                ),
       ),
     );
   }
@@ -318,9 +350,9 @@ class _RaceBottomSheetState extends State<RaceBottomSheet> {
       children: [
         Text(
           label,
-          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         TextField(
           controller: controller,
           readOnly: readOnly,
@@ -329,10 +361,13 @@ class _RaceBottomSheetState extends State<RaceBottomSheet> {
             hintText: hint,
             suffixIcon: suffix,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 14,
+            ),
           ),
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
       ],
     );
   }

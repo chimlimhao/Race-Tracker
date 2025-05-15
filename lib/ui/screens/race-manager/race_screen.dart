@@ -14,9 +14,17 @@ class RaceScreen extends StatefulWidget {
 }
 
 class _RaceScreenState extends State<RaceScreen>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   TabController? _tabController;
   bool _isInitialized = false;
+
+  // MARK: - Lifecycle Methods
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
 
   @override
   void didChangeDependencies() {
@@ -28,15 +36,43 @@ class _RaceScreenState extends State<RaceScreen>
     }
   }
 
-  void _fetchRaces() {
-    Future.microtask(() => context.read<RaceProvider>().fetchRaces());
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Refresh races when app comes to foreground
+      _fetchRaces();
+    }
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _tabController?.dispose();
     super.dispose();
   }
+
+  // MARK: - Data Methods
+
+  void _fetchRaces() {
+    Future.microtask(() => context.read<RaceProvider>().fetchRaces());
+  }
+
+  List<Race> _sortPendingRaces(List<Race> races) {
+    races.sort((a, b) => b.date.compareTo(a.date));
+    return races;
+  }
+
+  List<Race> _sortActiveRaces(List<Race> races) {
+    races.sort((a, b) => b.startTime.compareTo(a.startTime));
+    return races;
+  }
+
+  List<Race> _sortCompletedRaces(List<Race> races) {
+    races.sort((a, b) => b.endTime.compareTo(a.endTime));
+    return races;
+  }
+
+  // MARK: - UI Building
 
   @override
   Widget build(BuildContext context) {
@@ -66,26 +102,17 @@ class _RaceScreenState extends State<RaceScreen>
       body:
           loading
               ? const Center(child: CircularProgressIndicator())
-              : _buildTabBarView(pendingRaces, activeRaces, completedRaces),
+              : RefreshIndicator(
+                onRefresh: () async {
+                  await context.read<RaceProvider>().fetchRaces();
+                },
+                child: _buildTabBarView(
+                  pendingRaces,
+                  activeRaces,
+                  completedRaces,
+                ),
+              ),
     );
-  }
-
-  // Sort pending races by date (newest first)
-  List<Race> _sortPendingRaces(List<Race> races) {
-    races.sort((a, b) => b.date.compareTo(a.date));
-    return races;
-  }
-
-  // Sort active races by startTime (newest first)
-  List<Race> _sortActiveRaces(List<Race> races) {
-    races.sort((a, b) => b.startTime.compareTo(a.startTime));
-    return races;
-  }
-
-  // Sort completed races by endTime (newest first)
-  List<Race> _sortCompletedRaces(List<Race> races) {
-    races.sort((a, b) => b.endTime.compareTo(a.endTime));
-    return races;
   }
 
   AppBar _buildAppBar() {
@@ -105,11 +132,6 @@ class _RaceScreenState extends State<RaceScreen>
     );
   }
 
-  Future<void> _showAddRaceModal() async {
-    await RaceBottomSheet.show(context);
-    await context.read<RaceProvider>().fetchRaces();
-  }
-
   Widget _buildTabBarView(
     List<Race> pendingRaces,
     List<Race> activeRaces,
@@ -127,11 +149,22 @@ class _RaceScreenState extends State<RaceScreen>
 
   Widget _buildRaceList(List<Race> races) {
     if (races.isEmpty) {
-      return const Center(child: Text('No races found in this category.'));
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Text(
+            'No races found in this category.',
+            style: TextStyle(fontSize: 16, color: Colors.grey),
+          ),
+        ),
+      );
     }
 
-    return ListView.builder(
+    return ListView.separated(
       itemCount: races.length,
+      separatorBuilder:
+          (_, __) => const Divider(height: 1, color: Color(0xffe9e9e9)),
+      padding: EdgeInsets.zero,
       itemBuilder: (ctx, i) => _buildRaceItem(races[i]),
     );
   }
@@ -155,7 +188,7 @@ class _RaceScreenState extends State<RaceScreen>
 
   Widget _buildDismissibleBackground({required Alignment alignment}) {
     return Container(
-      color: Colors.transparent,
+      color: Colors.red.shade700,
       alignment: alignment,
       padding: EdgeInsets.only(
         left: alignment == Alignment.centerLeft ? 20 : 0,
@@ -163,6 +196,16 @@ class _RaceScreenState extends State<RaceScreen>
       ),
       child: const Icon(Icons.delete, color: Colors.white),
     );
+  }
+
+  // MARK: - Actions and Navigation
+
+  Future<void> _showAddRaceModal() async {
+    await RaceBottomSheet.show(context);
+    if (mounted) {
+      await context.read<RaceProvider>().fetchRaces();
+      _tabController?.animateTo(0);
+    }
   }
 
   Future<bool> _confirmDismiss(Race race) async {
@@ -181,6 +224,7 @@ class _RaceScreenState extends State<RaceScreen>
                   ),
                   TextButton(
                     onPressed: () => Navigator.pop(ctx, true),
+                    style: TextButton.styleFrom(foregroundColor: Colors.red),
                     child: const Text('Delete'),
                   ),
                 ],
@@ -191,9 +235,12 @@ class _RaceScreenState extends State<RaceScreen>
 
   void _deleteRace(Race race) {
     context.read<RaceProvider>().deleteRace(race.id);
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('Deleted "${race.title}"')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Deleted "${race.title}"'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   void _navigateToRaceDetail(String raceId) {

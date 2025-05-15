@@ -8,6 +8,7 @@ import 'package:race_tracker/ui/screens/widgets/buttons/race_button.dart';
 import 'package:race_tracker/ui/screens/widgets/cards/race_detail_card.dart';
 import 'package:race_tracker/ui/screens/widgets/cards/race_segments.dart'
     as segments_card;
+import 'package:race_tracker/ui/screens/race-manager/result_detail_screen.dart';
 
 class RaceDetailScreen extends StatefulWidget {
   final String raceId;
@@ -18,17 +19,34 @@ class RaceDetailScreen extends StatefulWidget {
 }
 
 class _RaceDetailScreenState extends State<RaceDetailScreen> {
+  // MARK: - Lifecycle Methods
+
   @override
   void initState() {
     super.initState();
     _fetchRace();
   }
 
+  // MARK: - Data Methods
+
   void _fetchRace() {
     Future.microtask(
       () => context.read<RaceProvider>().fetchRace(widget.raceId),
     );
   }
+
+  Future<void> _handleRaceButtonPress(
+    bool isStarted,
+    RaceProvider provider,
+  ) async {
+    if (isStarted) {
+      await provider.finishRace();
+    } else {
+      await provider.startRace();
+    }
+  }
+
+  // MARK: - Navigation Methods
 
   void _onSegmentTap(SegmentModel segModel) {
     final segEnum = Segment.values.firstWhere(
@@ -48,6 +66,29 @@ class _RaceDetailScreenState extends State<RaceDetailScreen> {
     );
   }
 
+  void _navigateToResultsScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ResultDetailScreen(raceId: widget.raceId),
+      ),
+    );
+  }
+
+  // MARK: - Helper Methods
+
+  String _getButtonHelpText(bool isStarted, bool isFinished) {
+    if (isStarted) {
+      return 'Tap to stop & finish the race';
+    } else if (isFinished) {
+      return 'This race has been completed';
+    } else {
+      return '**NOTE**: This button starts the race timer.';
+    }
+  }
+
+  // MARK: - UI Building Methods
+
   @override
   Widget build(BuildContext context) {
     final prov = context.watch<RaceProvider>();
@@ -58,9 +99,24 @@ class _RaceDetailScreenState extends State<RaceDetailScreen> {
       return _buildLoadingScreen();
     }
 
-    return Scaffold(
-      appBar: AppBar(title: Text(race.title)),
-      body: _buildBody(race, prov),
+    return Scaffold(appBar: _buildAppBar(race), body: _buildBody(race, prov));
+  }
+
+  AppBar _buildAppBar(Race race) {
+    final isFinished = race.raceStatus == RaceStatus.finished;
+
+    return AppBar(
+      title: Text(race.title),
+      actions:
+          isFinished
+              ? [
+                IconButton(
+                  icon: const Icon(Icons.leaderboard),
+                  tooltip: 'View Results',
+                  onPressed: _navigateToResultsScreen,
+                ),
+              ]
+              : null,
     );
   }
 
@@ -117,29 +173,24 @@ class _RaceDetailScreenState extends State<RaceDetailScreen> {
             buttonHelpText,
             style: const TextStyle(fontSize: 12, color: Color(0xFF7e7e7e)),
           ),
+          if (isFinished) ...[
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              icon: const Icon(Icons.leaderboard),
+              label: const Text('View Results'),
+              onPressed: _navigateToResultsScreen,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue.shade700,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
-  }
-
-  String _getButtonHelpText(bool isStarted, bool isFinished) {
-    if (isStarted) {
-      return 'Tap to stop & finish the race';
-    } else if (isFinished) {
-      return 'This race has been completed';
-    } else {
-      return '**NOTE**: This button starts the race timer.';
-    }
-  }
-
-  Future<void> _handleRaceButtonPress(
-    bool isStarted,
-    RaceProvider provider,
-  ) async {
-    if (isStarted) {
-      await provider.finishRace();
-    } else {
-      await provider.startRace();
-    }
   }
 }
