@@ -1,8 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:race_tracker/ui/providers/participant_provider.dart';
+import 'package:race_tracker/ui/providers/race_provider.dart';
 import 'package:race_tracker/ui/screens/widgets/nav_container.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => RaceProvider()),
+        ChangeNotifierProvider(create: (_) => ParticipantProvider()),
+      ],
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

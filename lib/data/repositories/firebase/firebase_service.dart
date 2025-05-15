@@ -93,6 +93,18 @@ Future<List<Race>> getAllRaces() async {
   return [];
 }
 
+/// — PARTICIPANTS —
+/// Delete a participant by ID
+Future<void> deleteParticipant(String id) async {
+  if (id.isEmpty) throw ArgumentError('Participant ID required');
+  final url = Uri.parse('$_baseUrl/participants/$id.json');
+  final resp = await http.delete(url);
+  if (resp.statusCode < 200 || resp.statusCode >= 300) {
+    throw Exception('Failed to delete participant: ${resp.body}');
+  }
+}
+
+
 
   /// Read all segment times for one participant in one race
   Future<List<SegmentTime>> getSegmentTimes({

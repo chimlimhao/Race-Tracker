@@ -1,19 +1,26 @@
+// participant_bottom_sheet.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:race_tracker/models/participant.dart';
+import 'package:race_tracker/ui/providers/participant_provider.dart';
+
 
 class ParticipantBottomSheet extends StatefulWidget {
-  const ParticipantBottomSheet({super.key});
+  const ParticipantBottomSheet({Key? key}) : super(key: key);
 
   /// Shows the bottom sheet with all activities
-  static void show(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => const ParticipantBottomSheet(),
-    );
-  }
+ // participant_bottom_sheet.dart
+static Future<void> show(BuildContext context) {
+  return showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    builder: (_) => const ParticipantBottomSheet(),
+  );
+}
+
 
   @override
   State<ParticipantBottomSheet> createState() => _ParticipantBottomSheetState();
@@ -22,11 +29,10 @@ class ParticipantBottomSheet extends StatefulWidget {
 class _ParticipantBottomSheetState extends State<ParticipantBottomSheet> {
   final _bibController = TextEditingController();
   final _nameController = TextEditingController();
-  String? _selectedGender;
-
-  // A flag to control if the gender selection is expanded
+  Gender? _selectedGender;
   bool _isGenderExpanded = false;
-  final List<String> _genders = ['Male', 'Female', 'Other'];
+  final List<Gender> _genders = Gender.values; 
+  bool _submitting = false;
 
   @override
   void dispose() {
@@ -37,13 +43,10 @@ class _ParticipantBottomSheetState extends State<ParticipantBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    // This ensures the bottom sheet takes up the correct amount of space
-    // and adjusts when the keyboard appears
     return Container(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom + 24,
       ),
-      // Allow the bottom sheet to expand up to 90% of the screen height
       constraints: BoxConstraints(
         maxHeight: MediaQuery.of(context).size.height * 0.9,
       ),
@@ -115,131 +118,114 @@ class _ParticipantBottomSheetState extends State<ParticipantBottomSheet> {
           decoration: InputDecoration(
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
             hintText: hintText,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 16,
-            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           ),
         ),
         const SizedBox(height: 24),
       ],
     );
   }
+Widget _buildGenderSelector() {
+  final label = _selectedGender != null
+      ? _selectedGender!.name[0].toUpperCase() + _selectedGender!.name.substring(1)
+      : 'Select a gender';
 
-  Widget _buildGenderSelector() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Gender',
-          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 12),
-        GestureDetector(
-          onTap: () {
-            setState(() {
-              _isGenderExpanded = !_isGenderExpanded;
-            });
-          },
-          child: Column(
-            children: [
-              // The input field (shows selected gender or placeholder)
-              Container(
-                height: 56,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade400),
-                  borderRadius:
-                      _isGenderExpanded
-                          ? const BorderRadius.vertical(top: Radius.circular(8))
-                          : BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      _selectedGender ?? 'Select a gender',
-                      style: TextStyle(
-                        color:
-                            _selectedGender == null
-                                ? Colors.grey.shade600
-                                : Colors.black,
-                        fontSize: 16,
-                      ),
-                    ),
-                    Icon(
-                      _isGenderExpanded
-                          ? Icons.arrow_drop_up
-                          : Icons.arrow_drop_down,
-                      color: Colors.grey.shade600,
-                    ),
-                  ],
-                ),
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const Text('Gender', style: TextStyle(fontSize:14, fontWeight: FontWeight.bold)),
+      const SizedBox(height:12),
+      GestureDetector(
+        onTap: () => setState(() => _isGenderExpanded = !_isGenderExpanded),
+        child: Column(
+          children: [
+            Container(
+              height:56, padding: const EdgeInsets.symmetric(horizontal:16),
+              decoration: BoxDecoration(
+                border: Border.all(color:Colors.grey.shade400),
+                borderRadius: _isGenderExpanded
+                    ? const BorderRadius.vertical(top: Radius.circular(8))
+                    : BorderRadius.circular(8),
               ),
-
-              // Dropdown options (only visible when expanded)
-              if (_isGenderExpanded) _buildGenderOptions(),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildGenderOptions() {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border(
-          left: BorderSide(color: Colors.grey.shade400),
-          right: BorderSide(color: Colors.grey.shade400),
-          bottom: BorderSide(color: Colors.grey.shade400),
-        ),
-        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(8)),
-      ),
-      child: Column(
-        children:
-            _genders.map((gender) {
-              bool isSelected = gender == _selectedGender;
-              return InkWell(
-                onTap: () {
-                  setState(() {
-                    _selectedGender = gender;
-                    _isGenderExpanded = false;
-                  });
-                },
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 16,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(label,
+                    style: TextStyle(
+                      color: _selectedGender==null 
+                        ? Colors.grey.shade600 
+                        : Colors.black,
+                      fontSize: 16,
+                    ),
                   ),
-                  color: isSelected ? Colors.grey.shade200 : Colors.white,
-                  child: Text(gender, style: const TextStyle(fontSize: 16)),
-                ),
-              );
-            }).toList(),
+                  Icon(
+                    _isGenderExpanded 
+                      ? Icons.arrow_drop_up 
+                      : Icons.arrow_drop_down,
+                    color: Colors.grey.shade600,
+                  ),
+                ],
+              ),
+            ),
+            if (_isGenderExpanded) _buildGenderOptions(),
+          ],
+        ),
       ),
-    );
-  }
+    ],
+  );
+}
+
+Widget _buildGenderOptions() {
+  return Container(
+    decoration: BoxDecoration(
+      border: Border(
+        left:   BorderSide(color:Colors.grey.shade400),
+        right:  BorderSide(color:Colors.grey.shade400),
+        bottom: BorderSide(color:Colors.grey.shade400),
+      ),
+      borderRadius: const BorderRadius.vertical(bottom: Radius.circular(8)),
+    ),
+    child: Column(
+      children: _genders.map((g) {
+        final label = g.name[0].toUpperCase() + g.name.substring(1);
+        final isSelected = g == _selectedGender;
+        return InkWell(
+          onTap: () => setState(() {
+            _selectedGender = g;
+            _isGenderExpanded = false;
+          }),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal:16, vertical:16),
+            color: isSelected ? Colors.grey.shade200 : Colors.white,
+            child: Text(label, style: const TextStyle(fontSize:16)),
+          ),
+        );
+      }).toList(),
+    ),
+  );
+}
+
 
   Widget _buildSubmitButton() {
     return SizedBox(
       width: double.infinity,
       height: 50,
       child: ElevatedButton(
-        onPressed: _validateAndSubmitForm,
+        onPressed: _submitting ? null : _validateAndSubmitForm,
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.black,
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
-        child: const Text('Add Participant', style: TextStyle(fontSize: 16)),
+        child: _submitting
+            ? const CircularProgressIndicator(color: Colors.white)
+            : const Text('Add Participant', style: TextStyle(fontSize: 16)),
       ),
     );
   }
 
-  void _validateAndSubmitForm() {
-    // Validate form
+  Future<void> _validateAndSubmitForm() async {
     if (_bibController.text.isEmpty ||
         _nameController.text.isEmpty ||
         _selectedGender == null) {
@@ -249,7 +235,20 @@ class _ParticipantBottomSheetState extends State<ParticipantBottomSheet> {
       return;
     }
 
-    // TODO: Add participant to database
+    setState(() => _submitting = true);
+
+    final newParticipant = ParticipantItem(
+      id: '',
+      bib: _bibController.text.trim(),
+      name: _nameController.text.trim(),
+      gender: _selectedGender!,
+      isTracked: false,
+    );
+
+    // Use provider to add
+    await context.read<ParticipantProvider>().addParticipant(newParticipant);
+
+    setState(() => _submitting = false);
     Navigator.pop(context);
   }
 }

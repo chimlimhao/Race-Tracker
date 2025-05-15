@@ -17,7 +17,7 @@ class RaceDetailCard extends StatefulWidget {
 }
 
 class _RaceDetailCardState extends State<RaceDetailCard> {
-  late Timer _timer;
+ late Timer _timer;
   Duration _elapsed = Duration.zero;
 
   @override
@@ -27,17 +27,27 @@ class _RaceDetailCardState extends State<RaceDetailCard> {
     _timer = Timer.periodic(const Duration(seconds: 1), (_) => _updateElapsed());
   }
 
+ 
   void _updateElapsed() {
     final race = widget.race;
-    final now = DateTime.now().millisecondsSinceEpoch;
+
+    // ← NEW: show zero until the race actually starts
+    if (race.raceStatus == RaceStatus.notStarted || race.startTime <= 0) {
+      setState(() => _elapsed = Duration.zero);
+      return;
+    }
+
+    final now   = DateTime.now().millisecondsSinceEpoch;
     final start = race.startTime;
-    final end = race.raceStatus == RaceStatus.finished ? race.endTime : now;
-    setState(() {
-      _elapsed = Duration(milliseconds: end - start);
-    });
+    final end   = race.raceStatus == RaceStatus.finished
+                      ? race.endTime
+                      : now;
+
+    setState(() => _elapsed = Duration(milliseconds: end - start));
   }
 
-  @override
+
+ @override
   void dispose() {
     _timer.cancel();
     super.dispose();
@@ -67,13 +77,14 @@ class _RaceDetailCardState extends State<RaceDetailCard> {
     );
   }
 
-  String _formatDuration(Duration d) {
-    final h = d.inHours.toString().padLeft(2,'0');
-    final m = (d.inMinutes % 60).toString().padLeft(2,'0');
-    final s = (d.inSeconds % 60).toString().padLeft(2,'0');
+   String _formatDuration(Duration d) {
+    final h = d.inHours.toString().padLeft(2, '0');
+    final m = (d.inMinutes % 60).toString().padLeft(2, '0');
+    final s = (d.inSeconds % 60).toString().padLeft(2, '0');
     return '$h:$m:$s';
   }
-}
+  }
+
 
 /// Dynamic segments list that navigates to tracking
 class RaceSegments extends StatelessWidget {

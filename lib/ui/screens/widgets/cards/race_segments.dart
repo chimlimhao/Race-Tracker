@@ -20,11 +20,11 @@ class RaceSegments extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Segments',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
-          ),
-          const SizedBox(height: 12),
+          // const Text(
+          //   'Segments',
+          //   style: TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
+          // ),
+          // const SizedBox(height: 12),
           Wrap(
             spacing: 12,
             children: segments.map((seg) {

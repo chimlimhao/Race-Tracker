@@ -8,16 +8,18 @@ class RaceBottomSheet extends StatefulWidget {
   const RaceBottomSheet({super.key});
 
   /// Call this to show the sheet
-  static void show(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (_) => const RaceBottomSheet(),
-    );
-  }
+// after
+static Future<void> show(BuildContext context) {
+  return showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    builder: (_) => const RaceBottomSheet(),
+  );
+}
+
 
   @override
   State<RaceBottomSheet> createState() => _RaceBottomSheetState();

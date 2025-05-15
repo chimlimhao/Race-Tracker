@@ -21,7 +21,7 @@ class ParticipantItem {
   bool isTracked;
   String name;
   Gender gender;
-  String status;
+  // String status;
   String bib;
 
   ParticipantItem({
@@ -29,7 +29,7 @@ class ParticipantItem {
     required this.isTracked,
     required this.name,
     required this.gender,
-    required this.status,
+    // required this.status,
     required this.bib,
   });
 
@@ -40,7 +40,7 @@ class ParticipantItem {
       isTracked: json['isTracked'] as bool? ?? false,
       name:      json['name']      as String? ?? '',
       gender:    GenderExtension.fromString(json['gender'] as String? ?? ''),
-      status:    json['status']    as String? ?? '',
+      // status:    json['status']    as String? ?? '',
       bib:       json['bib']       as String? ?? '',
     );
   }
@@ -50,7 +50,7 @@ class ParticipantItem {
         'isTracked': isTracked,
         'name':      name,
         'gender':    gender.value,
-        'status':    status,
+        // 'status':    status,
         'bib':       bib,
       };
 }

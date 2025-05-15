@@ -13,9 +13,6 @@ import 'package:race_tracker/ui/screens/widgets/cards/race_segments.dart'
 // ...
 
 
-
-
-
 /// Full detail screen with start button and segments
 class RaceDetailScreen extends StatefulWidget {
   final String raceId;
