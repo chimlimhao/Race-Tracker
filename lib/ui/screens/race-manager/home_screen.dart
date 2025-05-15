@@ -1,15 +1,42 @@
+// home_screen.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
+import 'package:race_tracker/models/race.dart';
+import 'package:race_tracker/ui/providers/participant_provider.dart';
+import 'package:race_tracker/ui/providers/race_provider.dart';
 import 'package:race_tracker/ui/screens/widgets/cards/dashboard_race_card.dart';
+
 import 'package:race_tracker/ui/screens/widgets/modals/activity_bottom_sheet.dart';
 import 'package:race_tracker/ui/screens/widgets/sections/recent_activity_section.dart';
 import 'package:race_tracker/ui/screens/widgets/sections/stats_summary_section.dart';
 import 'package:race_tracker/ui/utils/status_chip.dart';
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({Key? key}) : super(key: key);
+
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Load all races so we can pick the last created
+    Future.microtask(() => context.read<RaceProvider>().fetchRaces());
+    // Optionally load participants if needed for stats
+    Future.microtask(() => context.read<ParticipantProvider>().fetchParticipants());
+  }
 
   @override
   Widget build(BuildContext context) {
+    final raceProv = context.watch<RaceProvider>();
+    final races    = raceProv.races;
+    final loading  = raceProv.loading;
+
+    final lastRace = races.isNotEmpty ? races.last : null;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -25,16 +52,36 @@ class HomeScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Race card
-                _buildCurrentRaceCard(),
+                // Last created race card
+                if (loading)
+                  const Center(child: CircularProgressIndicator())
+                else if (lastRace != null)
+                  DashboardRaceCard(
+                    title: lastRace.title,
+                    location: lastRace.location,
+                    startTime: 'Scheduled: ${DateFormat('dd MMM, yyyy').format(lastRace.date)}',
+                    status: _mapStatus(lastRace.raceStatus),
+                    segments: lastRace.segments.map((seg) {
+                      return SegmentInfo(
+                        distance: seg.distance,
+                        label: seg.name,
+                      );
+                    }).toList(),
+                  )
+                else
+                  const Text(
+                    'No races yet. Tap + to create your first race.',
+                    style: TextStyle(fontSize: 16),
+                  ),
+
                 const SizedBox(height: 24),
 
                 // Stats summary
-                _buildStatsSummary(),
+                _buildStatsSummary(context),
                 const SizedBox(height: 32),
 
                 // Recent activity
-                _buildRecentActivity(context),
+                // _buildRecentActivity(context),
               ],
             ),
           ),
@@ -43,80 +90,46 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCurrentRaceCard() {
-    return DashboardRaceCard(
-      title: 'Sensok Race',
-      location: 'Phnom Penh, Cambodia',
-      startTime: 'Started at 7:30 AM',
-      status: Status.active,
-      segments: const [
-        SegmentInfo(distance: '750m', label: 'Swim'),
-        SegmentInfo(distance: '20km', label: 'Bike'),
-        SegmentInfo(distance: '5km', label: 'Run'),
-      ],
+  Status _mapStatus(RaceStatus rs) {
+    switch (rs) {
+      case RaceStatus.notStarted:
+        return Status.pending;
+      case RaceStatus.started:
+        return Status.active;
+      case RaceStatus.finished:
+      default:
+        return Status.completed;
+    }
+  }
+
+  Widget _buildStatsSummary(BuildContext context) {
+    final partCount = context.watch<ParticipantProvider>().participants.length;
+    final inProg = context
+        .watch<RaceProvider>()
+        .races
+        .where((r) => r.raceStatus == RaceStatus.started)
+        .length.toString();
+    final finished = context
+        .watch<RaceProvider>()
+        .races
+        .where((r) => r.raceStatus == RaceStatus.finished)
+        .length.toString();
+
+    return StatsSummarySection(
+      participantsCount: partCount.toString(),
+      inProgressCount: inProg,
+      finishedCount: finished,
     );
   }
 
-  Widget _buildStatsSummary() {
-    return const StatsSummarySection(
-      participantsCount: '42',
-      inProgressCount: '28',
-      finishedCount: '14',
-    );
-  }
-
-  Widget _buildRecentActivity(BuildContext context) {
-    // Sample list with more activities than we want to display
-    final activities = [
-      ActivityItem(
-        title: 'Limhao completed swim',
-        time: '2 min ago',
-        icon: Icons.pool_outlined,
-      ),
-      ActivityItem(
-        title: 'Porchheng completed bike',
-        time: '5 min ago',
-        icon: Icons.directions_bike_outlined,
-      ),
-      ActivityItem(
-        title: 'Gechleang finished race',
-        time: '8 min ago',
-        icon: Icons.flag_outlined,
-      ),
-      ActivityItem(
-        title: 'Dara completed swim',
-        time: '10 min ago',
-        icon: Icons.pool_outlined,
-      ),
-      ActivityItem(
-        title: 'Sokun completed bike',
-        time: '12 min ago',
-        icon: Icons.directions_bike_outlined,
-      ),
-      ActivityItem(
-        title: 'Bopha completed swim',
-        time: '15 min ago',
-        icon: Icons.pool_outlined,
-      ),
-      ActivityItem(
-        title: 'Chamroeun completed bike',
-        time: '18 min ago',
-        icon: Icons.directions_bike_outlined,
-      ),
-      ActivityItem(
-        title: 'Sopheap finished race',
-        time: '22 min ago',
-        icon: Icons.flag_outlined,
-      ),
-    ];
-
-    return RecentActivitySection(
-      activities: activities,
-      maxItems: 3, // Only show 3 activities on dashboard
-      onViewAllPressed: () {
-        // Show bottom sheet with all activities
-        ActivityBottomSheet.show(context, activities);
-      },
-    );
-  }
+  // Widget _buildRecentActivity(BuildContext context) {
+  //   final activities = context.watch<ActivityProvider>().recentActivities;
+  //   return RecentActivitySection(
+  //     activities: activities,
+  //     maxItems: 3,
+  //     onViewAllPressed: () {
+  //       ActivityBottomSheet.show(context, activities);
+  //     },
+  //   );
+  // }
 }

@@ -65,6 +65,16 @@ class RaceProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> deleteRace(String id) async {
+  _loading = true;
+  notifyListeners();
+  await _service.deleteRace(id);               // implement in FirebaseService
+  _races.removeWhere((r) => r.id == id);
+  _loading = false;
+  notifyListeners();
+}
+
+
   /// If all segment times are set, auto-complete the race
   // Future<void> autoCompleteIfNeeded() async {
   //   if (_currentRace == null) return;

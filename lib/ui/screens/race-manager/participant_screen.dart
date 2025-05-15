@@ -113,7 +113,7 @@ class _ParticipantScreenState extends State<ParticipantScreen> {
                                       borderRadius: BorderRadius.circular(16),
                                     ),
                                     child: Text(
-                                      p.id,
+                                      p.bib,
                                       style: const TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.bold,

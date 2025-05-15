@@ -39,6 +39,16 @@ class FirebaseService {
     }
   }
 
+
+  Future<void> deleteRace(String id) async {
+  final url = Uri.parse('$_baseUrl/races/$id.json');
+  final resp = await http.delete(url);
+  if (resp.statusCode < 200 || resp.statusCode >= 300) {
+    throw Exception('Failed to delete race');
+  }
+}
+
+
   /// — SEGMENT TIMES —
 
   /// Write a single segment’s elapsed time
