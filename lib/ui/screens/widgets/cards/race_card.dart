@@ -26,7 +26,7 @@ class RaceCard extends StatelessWidget {
         uiStatus = Status.pending;
         break;
       case RaceStatus.started:
-        uiStatus = Status.pending;
+        uiStatus = Status.active;
         break;
       case RaceStatus.finished:
       default:

@@ -1,4 +1,4 @@
-// home_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -81,7 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 32),
 
                 // Recent activity
-                // _buildRecentActivity(context),
+                _buildRecentActivity(context),
               ],
             ),
           ),
@@ -121,6 +121,62 @@ class _HomeScreenState extends State<HomeScreen> {
       finishedCount: finished,
     );
   }
+   Widget _buildRecentActivity(BuildContext context) {
+    // Sample list with more activities than we want to display
+    final activities = [
+      ActivityItem(
+        title: 'Limhao completed swim',
+        time: '2 min ago',
+        icon: Icons.pool_outlined,
+      ),
+      ActivityItem(
+        title: 'Porchheng completed bike',
+        time: '5 min ago',
+        icon: Icons.directions_bike_outlined,
+      ),
+      ActivityItem(
+        title: 'Gechleang finished race',
+        time: '8 min ago',
+        icon: Icons.flag_outlined,
+      ),
+      ActivityItem(
+        title: 'Dara completed swim',
+        time: '10 min ago',
+        icon: Icons.pool_outlined,
+      ),
+      ActivityItem(
+        title: 'Sokun completed bike',
+        time: '12 min ago',
+        icon: Icons.directions_bike_outlined,
+      ),
+      ActivityItem(
+        title: 'Bopha completed swim',
+        time: '15 min ago',
+        icon: Icons.pool_outlined,
+      ),
+      ActivityItem(
+        title: 'Chamroeun completed bike',
+        time: '18 min ago',
+        icon: Icons.directions_bike_outlined,
+      ),
+      ActivityItem(
+        title: 'Sopheap finished race',
+        time: '22 min ago',
+        icon: Icons.flag_outlined,
+      ),
+    ];
+
+    return RecentActivitySection(
+      activities: activities,
+      maxItems: 3, // Only show 3 activities on dashboard
+      onViewAllPressed: () {
+        // Show bottom sheet with all activities
+        ActivityBottomSheet.show(context, activities);
+      },
+    );
+  }
+}
+  
 
   // Widget _buildRecentActivity(BuildContext context) {
   //   final activities = context.watch<ActivityProvider>().recentActivities;
@@ -132,4 +188,4 @@ class _HomeScreenState extends State<HomeScreen> {
   //     },
   //   );
   // }
-}
+
