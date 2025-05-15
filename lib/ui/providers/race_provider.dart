@@ -20,9 +20,37 @@ class RaceProvider extends ChangeNotifier {
   Future<void> fetchRaces() async {
     _loading = true;
     notifyListeners();
+
     _races = await _service.getAllRaces();
+
+    // Sort races by their status and related timestamps
+    _sortRaces();
+
     _loading = false;
     notifyListeners();
+  }
+
+  /// Sort races by their status and respective timestamps
+  void _sortRaces() {
+    // Separate races by status
+    final pending =
+        _races.where((r) => r.raceStatus == RaceStatus.notStarted).toList();
+    final active =
+        _races.where((r) => r.raceStatus == RaceStatus.started).toList();
+    final completed =
+        _races.where((r) => r.raceStatus == RaceStatus.finished).toList();
+
+    // Sort each category
+    pending.sort((a, b) => b.date.compareTo(a.date)); // Newest date first
+    active.sort(
+      (a, b) => b.startTime.compareTo(a.startTime),
+    ); // Most recently started first
+    completed.sort(
+      (a, b) => b.endTime.compareTo(a.endTime),
+    ); // Most recently completed first
+
+    // Recombine with active races first, then pending, then completed
+    _races = [...active, ...pending, ...completed];
   }
 
   /// Fetch a single race (e.g. detail view)
@@ -47,6 +75,10 @@ class RaceProvider extends ChangeNotifier {
     // update in list
     final idx = _races.indexWhere((r) => r.id == _currentRace!.id);
     if (idx >= 0) _races[idx] = _currentRace!;
+
+    // Re-sort races after updating status
+    _sortRaces();
+
     _loading = false;
     notifyListeners();
   }
@@ -61,19 +93,22 @@ class RaceProvider extends ChangeNotifier {
     // update in list
     final idx = _races.indexWhere((r) => r.id == _currentRace!.id);
     if (idx >= 0) _races[idx] = _currentRace!;
+
+    // Re-sort races after updating status
+    _sortRaces();
+
     _loading = false;
     notifyListeners();
   }
 
   Future<void> deleteRace(String id) async {
-  _loading = true;
-  notifyListeners();
-  await _service.deleteRace(id);               // implement in FirebaseService
-  _races.removeWhere((r) => r.id == id);
-  _loading = false;
-  notifyListeners();
-}
-
+    _loading = true;
+    notifyListeners();
+    await _service.deleteRace(id); // implement in FirebaseService
+    _races.removeWhere((r) => r.id == id);
+    _loading = false;
+    notifyListeners();
+  }
 
   /// If all segment times are set, auto-complete the race
   // Future<void> autoCompleteIfNeeded() async {
@@ -84,4 +119,3 @@ class RaceProvider extends ChangeNotifier {
   //   if (allDone) await finishRace();
   // }
 }
-

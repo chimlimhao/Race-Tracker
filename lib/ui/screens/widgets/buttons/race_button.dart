@@ -12,6 +12,7 @@ class RaceButton extends StatelessWidget {
   final double? height;
   final double? fontSize;
   final double? iconSize;
+
   const RaceButton({
     super.key,
     this.type = ButtonType.start,
@@ -27,30 +28,40 @@ class RaceButton extends StatelessWidget {
 
   // Get button text based on type
   String _getButtonText() {
-    switch (type) {
-      case ButtonType.start:
-        return 'Start';
-      case ButtonType.stop:
-        return 'Stop';
-      case ButtonType.add:
-        return 'Add';
-    }
+    return switch (type) {
+      ButtonType.start => 'Start',
+      ButtonType.stop => 'Stop',
+      ButtonType.add => 'Add',
+    };
   }
 
   // Get button icon based on type
   IconData _getButtonIcon() {
-    switch (type) {
-      case ButtonType.start:
-        return Icons.play_arrow_outlined;
-      case ButtonType.stop:
-        return Icons.stop_outlined;
-      case ButtonType.add:
-        return Icons.add_outlined;
-    }
+    return switch (type) {
+      ButtonType.start => Icons.play_arrow_outlined,
+      ButtonType.stop => Icons.stop_outlined,
+      ButtonType.add => Icons.add_outlined,
+    };
   }
 
   @override
   Widget build(BuildContext context) {
+    // Determine colors based on enabled/disabled state
+    final effectiveBgColor =
+        onPressed == null
+            ? (bgcolor ?? Colors.white).withOpacity(0.6)
+            : bgcolor ?? Colors.white;
+
+    final effectiveBorderColor =
+        onPressed == null
+            ? (borderColor ?? Colors.black).withOpacity(0.4)
+            : borderColor ?? Colors.black;
+
+    final effectiveTextColor =
+        onPressed == null
+            ? (textColor ?? Colors.black).withOpacity(0.5)
+            : textColor ?? Colors.black;
+
     return Center(
       child: SizedBox(
         width: width,
@@ -60,35 +71,35 @@ class RaceButton extends StatelessWidget {
           child: Container(
             width: width,
             height: height,
-            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: bgcolor ?? Colors.white,
-              border: Border.all(color: borderColor ?? Colors.black),
+              color: effectiveBgColor,
+              border: Border.all(color: effectiveBorderColor),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  _getButtonIcon(),
-                  size: iconSize ?? 16,
-                  color: textColor ?? Colors.black,
-                ),
-                SizedBox(width: 4),
-                Text(
-                  _getButtonText(),
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: textColor ?? Colors.black,
-                    fontSize: fontSize ?? 16,
-                  ),
-                ),
-              ],
-            ),
+            child: _buildButtonContent(effectiveTextColor),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildButtonContent(Color textColor) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(_getButtonIcon(), size: iconSize ?? 16, color: textColor),
+        const SizedBox(width: 4),
+        Text(
+          _getButtonText(),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: textColor,
+            fontSize: fontSize ?? 16,
+          ),
+        ),
+      ],
     );
   }
 }

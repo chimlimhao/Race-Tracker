@@ -22,7 +22,7 @@ class RaceTrackingScreen extends StatefulWidget {
 
 class _RaceTrackingScreenState extends State<RaceTrackingScreen>
     with TickerProviderStateMixin {
-  late final TabController _tabController;
+  TabController? _tabController;
   final _service = FirebaseService();
 
   late Future<void> _initFuture;
@@ -30,23 +30,39 @@ class _RaceTrackingScreenState extends State<RaceTrackingScreen>
   late int _raceStartMillis;
   List<ParticipantItem> _allParticipants = [];
   Set<String> _tracked = {};
+  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
     _initFuture = _loadData();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_isInitialized) {
+      _tabController = TabController(length: 2, vsync: this);
+      _isInitialized = true;
+    }
+  }
+
   Future<void> _loadData() async {
-    // 1) fetch race to get startTime
+    await _loadRaceStartTime();
+    await _loadParticipants();
+    await _loadExistingSegmentTimes();
+  }
+
+  Future<void> _loadRaceStartTime() async {
     final race = await _service.getRace(widget.raceId);
     _raceStartMillis = race.startTime;
+  }
 
-    // 2) load participants
+  Future<void> _loadParticipants() async {
     _allParticipants = await _service.getAllParticipants();
+  }
 
-    // 3) load existing segmentTimes for each participant
+  Future<void> _loadExistingSegmentTimes() async {
     for (var p in _allParticipants) {
       final times = await _service.getSegmentTimes(
         raceId: widget.raceId,
@@ -60,7 +76,7 @@ class _RaceTrackingScreenState extends State<RaceTrackingScreen>
 
   @override
   void dispose() {
-    _tabController.dispose();
+    _tabController?.dispose();
     super.dispose();
   }
 
@@ -82,33 +98,43 @@ class _RaceTrackingScreenState extends State<RaceTrackingScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Track ${widget.segment.name}'),
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [Tab(text: 'All'), Tab(text: 'Tracked')],
-        ),
-      ),
-      body: FutureBuilder<void>(
-        future: _initFuture,
-        builder: (ctx, snap) {
-          if (snap.connectionState != ConnectionState.done) {
-            return Center(child: CircularProgressIndicator());
-          }
-          // Once loaded, build tabs
-          final all = _allParticipants;
-          final tracked = all.where((p) => _tracked.contains(p.id)).toList();
+    if (_tabController == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
 
-          return TabBarView(
-            controller: _tabController,
-            children: [
-              _buildGrid(all, title: 'Participants (${all.length})'),
-              _buildGrid(tracked, title: 'Tracked (${tracked.length})'),
-            ],
-          );
-        },
+    return Scaffold(appBar: _buildAppBar(), body: _buildBody());
+  }
+
+  AppBar _buildAppBar() {
+    return AppBar(
+      title: Text('Track ${widget.segment.name}'),
+      bottom: TabBar(
+        controller: _tabController,
+        tabs: const [Tab(text: 'All'), Tab(text: 'Tracked')],
       ),
+    );
+  }
+
+  Widget _buildBody() {
+    return FutureBuilder<void>(
+      future: _initFuture,
+      builder: (ctx, snap) {
+        if (snap.connectionState != ConnectionState.done) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        // Once loaded, build tabs
+        final all = _allParticipants;
+        final tracked = all.where((p) => _tracked.contains(p.id)).toList();
+
+        return TabBarView(
+          controller: _tabController,
+          children: [
+            _buildGrid(all, title: 'Participants (${all.length})'),
+            _buildGrid(tracked, title: 'Tracked (${tracked.length})'),
+          ],
+        );
+      },
     );
   }
 
@@ -117,41 +143,50 @@ class _RaceTrackingScreenState extends State<RaceTrackingScreen>
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          Row(
-            children: [
-              Text(title,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
-              Spacer(),
-              IconButton(
-                icon: Icon(Icons.search, size: 28),
-                onPressed: () => SearchBottomSheet.show(context),
-              ),
-            ],
-          ),
+          _buildGridHeader(title),
           const SizedBox(height: 12),
-          Expanded(
-            child: GridView.builder(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 5,
-                childAspectRatio: 1,
-                crossAxisSpacing: 8,
-                mainAxisSpacing: 8,
-              ),
-              itemCount: list.length,
-              itemBuilder: (_, i) {
-                final p = list[i];
-                final isTracked = _tracked.contains(p.id);
-                return TrackButton(
-                  isTracked: isTracked,
-                  bib: p.bib,
-                  status: isTracked ? 'Done' : 'Tap to finish',
-                  onTap: isTracked ? null : () => _onParticipantTap(p),
-                );
-              },
-            ),
-          ),
+          Expanded(child: _buildGridView(list)),
         ],
       ),
+    );
+  }
+
+  Widget _buildGridHeader(String title) {
+    return Row(
+      children: [
+        Text(
+          title,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+        ),
+        const Spacer(),
+        IconButton(
+          icon: const Icon(Icons.search, size: 28),
+          onPressed: () => SearchBottomSheet.show(context),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGridView(List<ParticipantItem> list) {
+    return GridView.builder(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 5,
+        childAspectRatio: 1,
+        crossAxisSpacing: 8,
+        mainAxisSpacing: 8,
+      ),
+      itemCount: list.length,
+      itemBuilder: (_, i) => _buildGridItem(list[i]),
+    );
+  }
+
+  Widget _buildGridItem(ParticipantItem participant) {
+    final isTracked = _tracked.contains(participant.id);
+    return TrackButton(
+      isTracked: isTracked,
+      bib: participant.bib,
+      status: isTracked ? 'Done' : 'Tap to finish',
+      onTap: isTracked ? null : () => _onParticipantTap(participant),
     );
   }
 }
