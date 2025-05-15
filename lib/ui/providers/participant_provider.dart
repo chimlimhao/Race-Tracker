@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:race_tracker/data/repositories/firebase/firebase_service.dart';
+import 'package:race_tracker/data/repositories/participant_repository.dart';
+import 'package:race_tracker/data/repositories/firebase/participant_repo_imp.dart';
 import 'package:race_tracker/models/participant.dart';
 
 /// Manages fetching and state for participants
 class ParticipantProvider extends ChangeNotifier {
-  final FirebaseService _service = FirebaseService();
+  final ParticipantRepository _repository = FirebaseParticipantRepository();
   List<ParticipantItem> _participants = [];
   bool _loading = false;
 
@@ -14,7 +15,7 @@ class ParticipantProvider extends ChangeNotifier {
   Future<void> fetchParticipants() async {
     _loading = true;
     notifyListeners();
-    _participants = await _service.getAllParticipants();
+    _participants = await _repository.getAllParticipants();
     _loading = false;
     notifyListeners();
   }
@@ -32,7 +33,7 @@ class ParticipantProvider extends ChangeNotifier {
 
     _loading = true;
     notifyListeners();
-    final id = await _service.createParticipantItem(p);
+    final id = await _repository.createParticipant(p);
     p.id = id;
     _participants.add(p);
     _loading = false;
@@ -42,7 +43,7 @@ class ParticipantProvider extends ChangeNotifier {
   Future<void> updateParticipant(ParticipantItem p) async {
     _loading = true;
     notifyListeners();
-    await _service.updateParticipantItem(p);
+    await _repository.updateParticipant(p);
     _loading = false;
     notifyListeners();
   }
@@ -50,7 +51,7 @@ class ParticipantProvider extends ChangeNotifier {
   Future<void> deleteParticipant(String id) async {
     _loading = true;
     notifyListeners();
-    await _service.deleteParticipant(id);
+    await _repository.deleteParticipant(id);
     _participants.removeWhere((x) => x.id == id);
     _loading = false;
     notifyListeners();

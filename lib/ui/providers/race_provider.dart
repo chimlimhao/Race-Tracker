@@ -1,13 +1,14 @@
 // providers.dart
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:race_tracker/data/repositories/firebase/firebase_service.dart';
+// import 'package:provider/provider.dart';
+import 'package:race_tracker/data/repositories/race_repository.dart';
+import 'package:race_tracker/data/repositories/firebase/race_repo_imp.dart';
 import 'package:race_tracker/models/race.dart';
-import 'package:race_tracker/models/participant.dart';
+// import 'package:race_tracker/models/participant.dart';
 
 /// Manages fetching and state for races
 class RaceProvider extends ChangeNotifier {
-  final FirebaseService _service = FirebaseService();
+  final RaceRepository _repository = FirebaseRaceRepository();
   List<Race> _races = [];
   Race? _currentRace;
   bool _loading = false;
@@ -21,7 +22,7 @@ class RaceProvider extends ChangeNotifier {
     _loading = true;
     notifyListeners();
 
-    _races = await _service.getAllRaces();
+    _races = await _repository.getAllRaces();
 
     // Sort races by their status and related timestamps
     _sortRaces();
@@ -41,15 +42,10 @@ class RaceProvider extends ChangeNotifier {
         _races.where((r) => r.raceStatus == RaceStatus.finished).toList();
 
     // Sort each category
-    pending.sort((a, b) => b.date.compareTo(a.date)); // Newest date first
-    active.sort(
-      (a, b) => b.startTime.compareTo(a.startTime),
-    ); // Most recently started first
-    completed.sort(
-      (a, b) => b.endTime.compareTo(a.endTime),
-    ); // Most recently completed first
+    pending.sort((a, b) => b.date.compareTo(a.date));
+    active.sort((a, b) => b.startTime.compareTo(a.startTime));
+    completed.sort((a, b) => b.endTime.compareTo(a.endTime));
 
-    // Recombine with active races first, then pending, then completed
     _races = [...active, ...pending, ...completed];
   }
 
@@ -57,7 +53,7 @@ class RaceProvider extends ChangeNotifier {
   Future<void> fetchRace(String id) async {
     _loading = true;
     notifyListeners();
-    _currentRace = await _service.getRace(id);
+    _currentRace = await _repository.getRace(id);
     // sync in list if present
     final idx = _races.indexWhere((r) => r.id == id);
     if (idx >= 0) _races[idx] = _currentRace!;
@@ -71,7 +67,7 @@ class RaceProvider extends ChangeNotifier {
     _loading = true;
     notifyListeners();
     _currentRace!.markStarted();
-    await _service.updateRace(_currentRace!);
+    await _repository.updateRace(_currentRace!);
     // update in list
     final idx = _races.indexWhere((r) => r.id == _currentRace!.id);
     if (idx >= 0) _races[idx] = _currentRace!;
@@ -89,7 +85,7 @@ class RaceProvider extends ChangeNotifier {
     _loading = true;
     notifyListeners();
     _currentRace!.markFinished();
-    await _service.updateRace(_currentRace!);
+    await _repository.updateRace(_currentRace!);
     // update in list
     final idx = _races.indexWhere((r) => r.id == _currentRace!.id);
     if (idx >= 0) _races[idx] = _currentRace!;
@@ -104,7 +100,7 @@ class RaceProvider extends ChangeNotifier {
   Future<void> deleteRace(String id) async {
     _loading = true;
     notifyListeners();
-    await _service.deleteRace(id); // implement in FirebaseService
+    await _repository.deleteRace(id);
     _races.removeWhere((r) => r.id == id);
     _loading = false;
     notifyListeners();

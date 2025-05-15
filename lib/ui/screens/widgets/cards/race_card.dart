@@ -11,11 +11,11 @@ class RaceCard extends StatelessWidget {
   final VoidCallback? onTap;
 
   const RaceCard({
-    Key? key,
+    super.key,
     required this.race,
     this.participantCount = 0,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -29,13 +29,16 @@ class RaceCard extends StatelessWidget {
         uiStatus = Status.active;
         break;
       case RaceStatus.finished:
-      default:
         uiStatus = Status.completed;
         break;
+      // default:
+      //   uiStatus = Status.completed;
+      //   break;
     }
 
     return GestureDetector(
-      onTap: onTap ??
+      onTap:
+          onTap ??
           () {
             Navigator.of(context).push(
               MaterialPageRoute(
@@ -82,7 +85,7 @@ class RaceCard extends StatelessWidget {
             ),
 
             Divider(height: 1, color: Colors.black.withOpacity(0.1)),
-          
+
             // Body with date, location, participants, segments
             Padding(
               padding: const EdgeInsets.all(18),
@@ -94,10 +97,7 @@ class RaceCard extends StatelessWidget {
                     DateFormat('dd MMM, yyyy').format(race.date),
                   ),
                   const SizedBox(height: 16),
-                  _buildInfoRow(
-                    Icons.location_on_outlined,
-                    race.location,
-                  ),
+                  _buildInfoRow(Icons.location_on_outlined, race.location),
                   const SizedBox(height: 16),
                   _buildInfoRow(
                     Icons.people_outline_outlined,
@@ -109,9 +109,10 @@ class RaceCard extends StatelessWidget {
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
-                    children: race.segments
-                        .map((seg) => SegmentChip(label: seg.name))
-                        .toList(),
+                    children:
+                        race.segments
+                            .map((seg) => SegmentChip(label: seg.name))
+                            .toList(),
                   ),
                 ],
               ),
@@ -128,9 +129,11 @@ class RaceCard extends StatelessWidget {
         Icon(icon, size: 16, color: Colors.black),
         const SizedBox(width: 10),
         Expanded(
-          child: Text(text,
-              style: TextStyle(fontSize: 14, color: Colors.black),
-              overflow: TextOverflow.ellipsis),
+          child: Text(
+            text,
+            style: TextStyle(fontSize: 14, color: Colors.black),
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
       ],
     );

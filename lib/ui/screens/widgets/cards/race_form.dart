@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:race_tracker/models/race.dart';
+// import 'package:race_tracker/models/race.dart';
 import 'package:race_tracker/models/segment.dart';
-import 'package:race_tracker/data/repositories/firebase/firebase_service.dart';
+// import 'package:race_tracker/data/repositories/firebase/firebase_service.dart';
 import 'package:race_tracker/ui/screens/widgets/buttons/race_button.dart';
 
 class RaceForm extends StatefulWidget {
-  const RaceForm({Key? key}) : super(key: key);
+  const RaceForm({super.key});
 
   @override
   State<RaceForm> createState() => _RaceFormState();
@@ -21,12 +21,21 @@ class _RaceFormState extends State<RaceForm> {
 
   /// Each pair: [nameController, distanceController]
   final List<List<TextEditingController>> _segmentControllers = [
-    [TextEditingController(text: 'Swimming'), TextEditingController(text: '1.5 km')],
-    [TextEditingController(text: 'Cycling'), TextEditingController(text: '40 km')],
-    [TextEditingController(text: 'Running'), TextEditingController(text: '10 km')],
+    [
+      TextEditingController(text: 'Swimming'),
+      TextEditingController(text: '1.5 km'),
+    ],
+    [
+      TextEditingController(text: 'Cycling'),
+      TextEditingController(text: '40 km'),
+    ],
+    [
+      TextEditingController(text: 'Running'),
+      TextEditingController(text: '10 km'),
+    ],
   ];
 
-  final _service = FirebaseService();
+  // final _service = FirebaseService();
 
   @override
   void dispose() {
@@ -75,12 +84,13 @@ class _RaceFormState extends State<RaceForm> {
 
   Future<void> _submit() async {
     // Build segment models
-    final segments = _segmentControllers.map((pair) {
-      return SegmentModel(
-        name: pair[0].text.trim(),
-        distance: pair[1].text.trim(),
-      );
-    }).toList();
+    final segments =
+        _segmentControllers.map((pair) {
+          return SegmentModel(
+            name: pair[0].text.trim(),
+            distance: pair[1].text.trim(),
+          );
+        }).toList();
 
     // Validation
     if (_titleController.text.trim().isEmpty ||
@@ -94,24 +104,24 @@ class _RaceFormState extends State<RaceForm> {
       return;
     }
 
-    final race = Race(
-      title: _titleController.text.trim(),
-      date: _selectedDate!,
-      location: _locationController.text.trim(),
-      segments: segments,
-    );
+    // final race = Race(
+    //   title: _titleController.text.trim(),
+    //   date: _selectedDate!,
+    //   location: _locationController.text.trim(),
+    //   segments: segments,
+    // );
 
     setState(() => _isLoading = true);
     try {
-      final newId = await _service.createRace(race);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Race created: \$newId')),
-      );
+      // final newId = await _service.createRace(race);
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Race created: \$newId')));
       Navigator.of(context).pop();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: \$e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: \$e')));
     } finally {
       setState(() => _isLoading = false);
     }
@@ -126,17 +136,26 @@ class _RaceFormState extends State<RaceForm> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Race Detail', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            const Text(
+              'Race Detail',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 24),
 
             // Title
-            const Text('Race Title', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const Text(
+              'Race Title',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
             TextField(controller: _titleController),
             const SizedBox(height: 24),
 
             // Date
-            const Text('Race Date', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const Text(
+              'Race Date',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
             TextField(
               controller: _dateController,
@@ -151,7 +170,10 @@ class _RaceFormState extends State<RaceForm> {
             const SizedBox(height: 24),
 
             // Location
-            const Text('Race Location', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const Text(
+              'Race Location',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
             TextField(controller: _locationController),
             const SizedBox(height: 24),
@@ -160,7 +182,10 @@ class _RaceFormState extends State<RaceForm> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Race Segments', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                const Text(
+                  'Race Segments',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
                 RaceButton(onPressed: _addSegment, type: ButtonType.add),
               ],
             ),
@@ -201,7 +226,10 @@ class _RaceFormState extends State<RaceForm> {
                       ),
                       IconButton(
                         onPressed: () => _removeSegment(i),
-                        icon: const Icon(Icons.delete_outline, color: Colors.red),
+                        icon: const Icon(
+                          Icons.delete_outline,
+                          color: Colors.red,
+                        ),
                       ),
                     ],
                   ),
@@ -219,11 +247,17 @@ class _RaceFormState extends State<RaceForm> {
                 onPressed: _submit,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
-                child: _isLoading
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text('Create Race', style: TextStyle(fontSize: 16)),
+                child:
+                    _isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text(
+                          'Create Race',
+                          style: TextStyle(fontSize: 16),
+                        ),
               ),
             ),
           ],

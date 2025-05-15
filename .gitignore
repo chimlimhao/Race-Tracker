@@ -67,3 +67,8 @@ app.*.map.jso
 # # **/lib/EXERCISE-2/**
 
 .qodo
+
+
+lib/data/repositories/firebase/firebase_service.dart
+lib/data/repositories/firebase/firebase_service_backup.dart
+lib/data/repositories/firebase/firebase.json

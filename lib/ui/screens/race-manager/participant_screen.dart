@@ -4,10 +4,10 @@ import 'package:race_tracker/models/participant.dart';
 import 'package:race_tracker/ui/providers/participant_provider.dart';
 import 'package:race_tracker/ui/screens/widgets/inputs/search_input.dart';
 import 'package:race_tracker/ui/screens/widgets/modals/participant_bottom_sheet.dart';
-import 'package:race_tracker/ui/screens/widgets/modals/search_bottom_sheet.dart';
+// import 'package:race_tracker/ui/screens/widgets/modals/search_bottom_sheet.dart';
 
 class ParticipantScreen extends StatefulWidget {
-  const ParticipantScreen({Key? key}) : super(key: key);
+  const ParticipantScreen({super.key});
 
   @override
   State<ParticipantScreen> createState() => _ParticipantScreenState();
@@ -25,11 +25,11 @@ class _ParticipantScreenState extends State<ParticipantScreen> {
     );
   }
 
-  void _quickSearch(String bib) {
-    setState(() {
-      _searchQuery = bib;
-    });
-  }
+  // void _quickSearch(String bib) {
+  //   setState(() {
+  //     _searchQuery = bib;
+  //   });
+  // }
 
   String _capitalizeFirst(String input) {
     if (input.isEmpty) return input;

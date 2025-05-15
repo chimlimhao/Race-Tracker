@@ -1,33 +1,35 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:race_tracker/models/race.dart';
-import 'package:race_tracker/data/repositories/firebase/firebase_service.dart';
+// import 'package:race_tracker/data/repositories/firebase/firebase_service.dart';
 import 'package:race_tracker/models/segment.dart';
 
-import 'package:race_tracker/ui/screens/time-tracker/race_tracking_screen.dart';
-import 'package:race_tracker/ui/screens/widgets/buttons/race_button.dart';
+// import 'package:race_tracker/ui/screens/time-tracker/race_tracking_screen.dart';
+// import 'package:race_tracker/ui/screens/widgets/buttons/race_button.dart';
 
 /// Card showing elapsed time for a race
 class RaceDetailCard extends StatefulWidget {
   final Race race;
-  const RaceDetailCard({Key? key, required this.race}) : super(key: key);
+  const RaceDetailCard({super.key, required this.race});
 
   @override
   State<RaceDetailCard> createState() => _RaceDetailCardState();
 }
 
 class _RaceDetailCardState extends State<RaceDetailCard> {
- late Timer _timer;
+  late Timer _timer;
   Duration _elapsed = Duration.zero;
 
   @override
   void initState() {
     super.initState();
     _updateElapsed();
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) => _updateElapsed());
+    _timer = Timer.periodic(
+      const Duration(seconds: 1),
+      (_) => _updateElapsed(),
+    );
   }
 
- 
   void _updateElapsed() {
     final race = widget.race;
 
@@ -37,17 +39,14 @@ class _RaceDetailCardState extends State<RaceDetailCard> {
       return;
     }
 
-    final now   = DateTime.now().millisecondsSinceEpoch;
+    final now = DateTime.now().millisecondsSinceEpoch;
     final start = race.startTime;
-    final end   = race.raceStatus == RaceStatus.finished
-                      ? race.endTime
-                      : now;
+    final end = race.raceStatus == RaceStatus.finished ? race.endTime : now;
 
     setState(() => _elapsed = Duration(milliseconds: end - start));
   }
 
-
- @override
+  @override
   void dispose() {
     _timer.cancel();
     super.dispose();
@@ -70,28 +69,31 @@ class _RaceDetailCardState extends State<RaceDetailCard> {
           children: [
             const Icon(Icons.access_time_outlined, size: 38),
             const SizedBox(width: 12),
-            Text(txt, style: const TextStyle(fontSize: 38, fontWeight: FontWeight.w500)),
+            Text(
+              txt,
+              style: const TextStyle(fontSize: 38, fontWeight: FontWeight.w500),
+            ),
           ],
         ),
       ),
     );
   }
 
-   String _formatDuration(Duration d) {
+  String _formatDuration(Duration d) {
     final h = d.inHours.toString().padLeft(2, '0');
     final m = (d.inMinutes % 60).toString().padLeft(2, '0');
     final s = (d.inSeconds % 60).toString().padLeft(2, '0');
     return '$h:$m:$s';
   }
-  }
-
+}
 
 /// Dynamic segments list that navigates to tracking
 class RaceSegments extends StatelessWidget {
   final List<SegmentModel> segments;
   final void Function(SegmentModel) onTap;
 
-  const RaceSegments({Key? key, required this.segments, required this.onTap}) : super(key: key);
+  const RaceSegments({Key? key, required this.segments, required this.onTap})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -100,24 +102,34 @@ class RaceSegments extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Segments', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w500)),
+          const Text(
+            'Segments',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
+          ),
           const SizedBox(height: 12),
           Wrap(
             spacing: 12,
-            children: segments.map((seg) {
-              return InkWell(
-                onTap: () => onTap(seg),
-                borderRadius: BorderRadius.circular(10),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7.5),
-                  decoration: BoxDecoration(
-                    color: Colors.black,
+            children:
+                segments.map((seg) {
+                  return InkWell(
+                    onTap: () => onTap(seg),
                     borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(seg.name, style: const TextStyle(color: Colors.white)),
-                ),
-              );
-            }).toList(),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 7.5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        seg.name,
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  );
+                }).toList(),
           ),
         ],
       ),

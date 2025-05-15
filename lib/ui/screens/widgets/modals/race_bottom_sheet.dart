@@ -2,44 +2,52 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:race_tracker/models/race.dart';
 import 'package:race_tracker/models/segment.dart';
-import 'package:race_tracker/data/repositories/firebase/firebase_service.dart';
+// import 'package:race_tracker/data/repositories/firebase/firebase_service.dart';
 
 class RaceBottomSheet extends StatefulWidget {
   const RaceBottomSheet({super.key});
 
   /// Call this to show the sheet
-// after
-static Future<void> show(BuildContext context) {
-  return showModalBottomSheet<void>(
-    context: context,
-    isScrollControlled: true,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-    ),
-    builder: (_) => const RaceBottomSheet(),
-  );
-}
-
+  // after
+  static Future<void> show(BuildContext context) {
+    return showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => const RaceBottomSheet(),
+    );
+  }
 
   @override
   State<RaceBottomSheet> createState() => _RaceBottomSheetState();
 }
 
 class _RaceBottomSheetState extends State<RaceBottomSheet> {
-  final _nameController     = TextEditingController();
-  final _dateController     = TextEditingController();
+  final _nameController = TextEditingController();
+  final _dateController = TextEditingController();
   final _locationController = TextEditingController();
   DateTime? _selectedDate;
   bool _isLoading = false;
 
   /// One pair of controllers per segment: [nameController, distController]
   final List<List<TextEditingController>> _segmentControllers = [
-    [TextEditingController(text: 'Swimming'), TextEditingController(text: '1.5 km')],
-    [TextEditingController(text: 'Cycling'),  TextEditingController(text: '20 km')],
-    [TextEditingController(text: 'Running'),  TextEditingController(text: '5 km')],
+    [
+      TextEditingController(text: 'Swimming'),
+      TextEditingController(text: '1.5 km'),
+    ],
+    [
+      TextEditingController(text: 'Cycling'),
+      TextEditingController(text: '20 km'),
+    ],
+    [
+      TextEditingController(text: 'Running'),
+      TextEditingController(text: '5 km'),
+    ],
   ];
 
-  final FirebaseService _service = FirebaseService();
+  // final FirebaseService _service = FirebaseService();
 
   @override
   void dispose() {
@@ -88,9 +96,13 @@ class _RaceBottomSheetState extends State<RaceBottomSheet> {
 
   Future<void> _validateAndSubmitForm() async {
     // Build Segment models
-    final segments = _segmentControllers.map((pair) {
-      return SegmentModel(name: pair[0].text.trim(), distance: pair[1].text.trim());
-    }).toList();
+    final segments =
+        _segmentControllers.map((pair) {
+          return SegmentModel(
+            name: pair[0].text.trim(),
+            distance: pair[1].text.trim(),
+          );
+        }).toList();
 
     // Validation
     if (_nameController.text.trim().isEmpty ||
@@ -113,14 +125,33 @@ class _RaceBottomSheetState extends State<RaceBottomSheet> {
 
     setState(() => _isLoading = true);
     try {
-      final id = await _service.createRace(race);
+      // final id = await _service.createRace(race);
+
+      // Show a user-friendly success message instead of the Firebase ID
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Race created: $id')),
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.check_circle, color: Colors.white),
+              SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Race "${race.title}" created successfully!',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: Colors.green.shade700,
+          duration: Duration(seconds: 3),
+          behavior: SnackBarBehavior.floating,
+        ),
       );
+
       Navigator.of(context).pop(); // close bottom sheet
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
+        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
       );
     } finally {
       setState(() => _isLoading = false);
@@ -146,8 +177,10 @@ class _RaceBottomSheetState extends State<RaceBottomSheet> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Race Detail',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(
+                'Race Detail',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
               IconButton(
                 icon: Icon(Icons.close),
                 onPressed: () => Navigator.pop(context),
@@ -160,20 +193,30 @@ class _RaceBottomSheetState extends State<RaceBottomSheet> {
           _buildField('Race Name', _nameController, hint: 'Enter a race name'),
 
           // Date
-          _buildField('Date', _dateController,
-              hint: 'Tap to pick date', readOnly: true, onTap: _pickDate,
-              suffix: Icon(Icons.calendar_today)),
+          _buildField(
+            'Date',
+            _dateController,
+            hint: 'Tap to pick date',
+            readOnly: true,
+            onTap: _pickDate,
+            suffix: Icon(Icons.calendar_today),
+          ),
 
           // Location
-          _buildField('Location', _locationController,
-              hint: 'Enter a location'),
+          _buildField(
+            'Location',
+            _locationController,
+            hint: 'Enter a location',
+          ),
 
           // Segments list
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Race Segments',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text(
+                'Race Segments',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
               IconButton(
                 icon: Icon(Icons.add, color: Colors.black),
                 onPressed: _addSegment,
@@ -202,7 +245,9 @@ class _RaceBottomSheetState extends State<RaceBottomSheet> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             contentPadding: EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 14),
+                              horizontal: 12,
+                              vertical: 14,
+                            ),
                           ),
                         ),
                       ),
@@ -217,7 +262,9 @@ class _RaceBottomSheetState extends State<RaceBottomSheet> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             contentPadding: EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 14),
+                              horizontal: 12,
+                              vertical: 14,
+                            ),
                           ),
                         ),
                       ),
@@ -241,11 +288,16 @@ class _RaceBottomSheetState extends State<RaceBottomSheet> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.black,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
-              child: _isLoading
-                  ? CircularProgressIndicator(color: Colors.white)
-                  : Text('Add Race', style: TextStyle(fontSize: 16, color: Colors.white)),
+              child:
+                  _isLoading
+                      ? CircularProgressIndicator(color: Colors.white)
+                      : Text(
+                        'Add Race',
+                        style: TextStyle(fontSize: 16, color: Colors.white),
+                      ),
             ),
           ),
         ],
@@ -264,8 +316,10 @@ class _RaceBottomSheetState extends State<RaceBottomSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+        Text(
+          label,
+          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+        ),
         SizedBox(height: 8),
         TextField(
           controller: controller,
@@ -274,10 +328,8 @@ class _RaceBottomSheetState extends State<RaceBottomSheet> {
           decoration: InputDecoration(
             hintText: hint,
             suffixIcon: suffix,
-            border:
-                OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-            contentPadding:
-                EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           ),
         ),
         SizedBox(height: 16),

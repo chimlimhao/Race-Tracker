@@ -12,7 +12,7 @@ import 'package:race_tracker/ui/screens/widgets/sections/stats_summary_section.d
 import 'package:race_tracker/ui/utils/status_chip.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -164,7 +164,6 @@ class _HomeScreenState extends State<HomeScreen> {
       case RaceStatus.started:
         return Status.active;
       case RaceStatus.finished:
-      default:
         return Status.completed;
     }
   }

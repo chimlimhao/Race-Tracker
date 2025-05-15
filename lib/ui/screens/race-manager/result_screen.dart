@@ -24,30 +24,33 @@ class _ResultScreenState extends State<ResultScreen> {
   @override
   Widget build(BuildContext context) {
     final raceProv = context.watch<RaceProvider>();
-    final races    = raceProv.races;
-    final loading  = raceProv.loading;
+    final races = raceProv.races;
+    final loading = raceProv.loading;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Results')),
-      body: loading
-        ? const Center(child: CircularProgressIndicator())
-        : races.isEmpty
-          ? const Center(child: Text('No races available'))
-          : ListView.builder(
-              itemCount: races.length,
-              itemBuilder: (ctx, i) {
-                final r = races[i];
-                return RaceCard(
-                  race: r,
-                  participantCount: r.segments.length, // or real count
-                  onTap: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => ResultDetailScreen(raceId: r.id),
-                    ));
-                  },
-                );
-              },
-            ),
+      body:
+          loading
+              ? const Center(child: CircularProgressIndicator())
+              : races.isEmpty
+              ? const Center(child: Text('No races available'))
+              : ListView.builder(
+                itemCount: races.length,
+                itemBuilder: (ctx, i) {
+                  final r = races[i];
+                  return RaceCard(
+                    race: r,
+                    participantCount: r.segments.length, // or real count
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => ResultDetailScreen(raceId: r.id),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
     );
   }
 }

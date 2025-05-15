@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:race_tracker/models/participant.dart';
-import 'package:race_tracker/models/race.dart';
 import 'package:race_tracker/models/segment.dart';
-import 'package:race_tracker/data/repositories/firebase/firebase_service.dart';
+import 'package:race_tracker/data/repositories/firebase/race_repo_imp.dart';
+import 'package:race_tracker/data/repositories/firebase/participant_repo_imp.dart';
 import 'package:race_tracker/ui/screens/widgets/buttons/track_button.dart';
 import 'package:race_tracker/ui/screens/widgets/modals/search_bottom_sheet.dart';
 
@@ -11,10 +11,10 @@ class RaceTrackingScreen extends StatefulWidget {
   final Segment segment;
 
   const RaceTrackingScreen({
-    Key? key,
+    super.key,
     required this.raceId,
     required this.segment,
-  }) : super(key: key);
+  });
 
   @override
   State<RaceTrackingScreen> createState() => _RaceTrackingScreenState();
@@ -23,7 +23,8 @@ class RaceTrackingScreen extends StatefulWidget {
 class _RaceTrackingScreenState extends State<RaceTrackingScreen>
     with TickerProviderStateMixin {
   TabController? _tabController;
-  final _service = FirebaseService();
+  final _raceRepository = FirebaseRaceRepository();
+  final _participantRepository = FirebaseParticipantRepository();
 
   late Future<void> _initFuture;
   bool _isInitialized = false;
@@ -31,8 +32,8 @@ class _RaceTrackingScreenState extends State<RaceTrackingScreen>
   String _errorMessage = '';
 
   late int _raceStartMillis;
-  List<ParticipantItem> _allParticipants = [];
-  Set<String> _tracked = {};
+  final List<ParticipantItem> _allParticipants = [];
+  final Set<String> _tracked = {};
 
   @override
   void initState() {
@@ -70,7 +71,7 @@ class _RaceTrackingScreenState extends State<RaceTrackingScreen>
 
   Future<void> _loadRaceStartTime() async {
     try {
-      final race = await _service.getRace(widget.raceId);
+      final race = await _raceRepository.getRace(widget.raceId);
       _raceStartMillis = race.startTime;
     } catch (e) {
       throw Exception('Failed to load race: $e');
@@ -79,7 +80,9 @@ class _RaceTrackingScreenState extends State<RaceTrackingScreen>
 
   Future<void> _loadParticipants() async {
     try {
-      _allParticipants = await _service.getAllParticipants();
+      _allParticipants.addAll(
+        await _participantRepository.getAllParticipants(),
+      );
     } catch (e) {
       throw Exception('Failed to load participants: $e');
     }
@@ -88,7 +91,7 @@ class _RaceTrackingScreenState extends State<RaceTrackingScreen>
   Future<void> _loadExistingSegmentTimes() async {
     for (var p in _allParticipants) {
       try {
-        final times = await _service.getSegmentTimes(
+        final times = await _raceRepository.getSegmentTimes(
           raceId: widget.raceId,
           participantId: p.id,
         );
@@ -113,7 +116,7 @@ class _RaceTrackingScreenState extends State<RaceTrackingScreen>
       final now = DateTime.now().millisecondsSinceEpoch;
       final elapsedSec = ((now - _raceStartMillis) / 1000).round();
 
-      await _service.setSegmentTime(
+      await _raceRepository.setSegmentTime(
         raceId: widget.raceId,
         participantId: p.id,
         segment: widget.segment,
@@ -130,7 +133,7 @@ class _RaceTrackingScreenState extends State<RaceTrackingScreen>
 
   Future<void> _onUntrackParticipant(ParticipantItem p) async {
     try {
-      await _service.removeSegmentTime(
+      await _raceRepository.removeSegmentTime(
         raceId: widget.raceId,
         participantId: p.id,
         segment: widget.segment,

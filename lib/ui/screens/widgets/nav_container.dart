@@ -3,7 +3,7 @@ import 'package:race_tracker/ui/screens/race-manager/home_screen.dart';
 import 'package:race_tracker/ui/screens/race-manager/participant_screen.dart';
 import 'package:race_tracker/ui/screens/race-manager/race_screen.dart';
 import 'package:race_tracker/ui/screens/race-manager/result_screen.dart';
-import 'package:race_tracker/ui/screens/widgets/forms/race_form.dart';
+// import 'package:race_tracker/ui/screens/widgets/forms/race_form.dart';
 import 'package:race_tracker/ui/screens/widgets/navigations/bottom_navbar.dart';
 
 class NavContainer extends StatefulWidget {
@@ -19,7 +19,6 @@ class _NavContainerState extends State<NavContainer> {
   final List<Widget> screens = [
     HomeScreen(),
     RaceScreen(),
-    // RaceForm(),
     ParticipantScreen(),
     ResultScreen(),
   ];
